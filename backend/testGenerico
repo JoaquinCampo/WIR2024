@@ -1,0 +1,16 @@
+Prueba de prompt para sentiment-analysis:
+
+"Given the sentence: "TLacalle Pou no  fue el mejor presidente, tampoco el peor, mas bien uno normal. Sin embargo, Tabare Vazques fue el mejor de todos."
+
+And an entity: "Lacalle Pou"
+
+Analyse the sentence using sentiment analysis and provide feedback on the positiveness of the entity.
+
+Give a response in json format like this:
+{
+ "Positive": 0.39828721
+ "Neutral": 0.39171820
+ "Negative": 0.12361166
+}
+
+The value of "positiveness" should be between 0 and 1, and should have 8 decimal characters. For exaple, positiveness could be 0.31083612PROVIDE ONLY THE JSON FORMAT RESPONSE, NOTHING MORE"
