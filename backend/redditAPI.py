@@ -21,7 +21,7 @@ def INIT():
     res = rq.post('https://www.reddit.com/api/v1/access_token', auth=auth, data=data, headers=headers)
     TOKEN = res.json()['access_token']
 
-def buscarPublicaciones(entidad, largo):
+def buscarPublicaciones(entidad, cantidad):
     # if(type(entidad) not String or largo not Int):  ### hay que chequear caso borde por entrada de mal tipo de variable
     global init
 
@@ -32,18 +32,18 @@ def buscarPublicaciones(entidad, largo):
     headers = {'User-Agent': 'MyAPI/0.0.1'}
     headers['Authorization'] = f'bearer {TOKEN}'
 
-    url = 'https://oauth.reddit.com/r/Uruguay/search'
+    url = 'https://oauth.reddit.com/r/politics/search'
 
     params = {
-        'q': entidad,        # Término de búsqueda
-        'sort': 'new',       # Ordenar por relevancia
-        'limit': largo       # Limitar a los primeros 10 resultados
+        'q': entidad,           # Término de búsqueda
+        'sort': 'new',          # Ordenar por fecha
+        'limit': cantidad       # Limitar la cantidad de resultados
     }
 
-    redUY = rq.get(url, headers=headers, params = params)
-    redUYjson = redUY.json()
+    redUS = rq.get(url, headers=headers, params = params)
+    redUSjson = redUS.json()
 
-    for post in redUYjson['data']['children']:
+    for post in redUSjson['data']['children']:
         print(f"Titulo: {post['data']['title']}")
 
         print(f"Publicación: {post['data']['selftext']}")
