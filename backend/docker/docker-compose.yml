@@ -1,0 +1,30 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: backend-elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elasticnet
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: backend-web
+    depends_on:
+      - elasticsearch
+    networks:
+      - elasticnet
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../app:/backend/app
+    command: ../docker/start.sh
+
+networks:
+  elasticnet:
+    driver: bridge
