@@ -1,4 +1,5 @@
 from politician import Politician
+import simplejson
 
 # politicians_2024 = [
 #     {"name": "Joe Biden", "party": "Democratic"},
@@ -24,6 +25,7 @@ from politician import Politician
 #     politician.retrieve_info()
 
 Trump = Politician(name="Donald Trump", party="Republican")
-Trump.retrieve_info
+Trump.retrieve_info()
 
-print(Trump.opinions)
+simplejson.dumps(Trump.opinions, indent=4, sort_keys=True)
+print(simplejson.dumps(Trump.opinions, indent=4, sort_keys=True))

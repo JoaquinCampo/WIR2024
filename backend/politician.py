@@ -20,7 +20,7 @@ class Politician:
         self.party = party
         self.first_name, self.last_name = self.split_name(name)
         self.opinions = []
-        self.last_post_date = -1
+        self.after = None
 
     def split_name(self, name):
         """
@@ -37,13 +37,14 @@ class Politician:
         if len(parts) > 1:
             return (' '.join(parts[:-1]), parts[-1])
         else:
-            return (name, "")  # Handling single name scenarios
+            return (name, "")  # Single name 
 
     def display_info(self):
         return f"Name: {self.name}, First Name: {self.first_name}, Last Name: {self.last_name}, Party: {self.party}"
     
     def retrieve_info(self):
-        threads, self.last_post_date = redditAPI.get_politician_data(self.last_name, self.last_post_date)
+        threads, self.after = redditAPI.get_politician_data(self.last_name, self.after)
+        
         sentiment_results = huggingface.analyse_sentiment(self.last_name, threads)
         
         i = 0
