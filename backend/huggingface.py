@@ -10,7 +10,6 @@ def analyse_sentiment(entity, phrases):
 
    for phrase in phrases:
       evaluation = classifier(phrase,  text_pair=entity)
-      print(evaluation)
       results.append(evaluation[0])
 
    return results
