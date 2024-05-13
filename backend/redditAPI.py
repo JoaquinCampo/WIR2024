@@ -2,7 +2,7 @@ import requests as rq
 import simplejson
 import datetime
 
-def INIT():
+def login():
     global TOKEN
 
     CLIENT_ID = '35RqOQuPf7sH7XMxtMJ_Og'
@@ -23,16 +23,11 @@ def INIT():
 
 def buscarPublicaciones(entidad, largo):
     # if(type(entidad) not String or largo not Int):  ### hay que chequear caso borde por entrada de mal tipo de variable
-    global init
-
-    if(not  init):     #para no enviar el auth todas las veces que se busca
-       INIT()
-       init = True
 
     headers = {'User-Agent': 'MyAPI/0.0.1'}
     headers['Authorization'] = f'bearer {TOKEN}'
 
-    url = 'https://oauth.reddit.com/r/Uruguay/search'
+    url = 'https://oauth.reddit.com/r/politics/search'
 
     params = {
         'q': entidad,        # Término de búsqueda
@@ -56,7 +51,10 @@ def buscarPublicaciones(entidad, largo):
 
     # json = simplejson.dumps(redUY.json(), indent=4, sort_keys=True)  ## para formatear el json en la consola y que se entienda mas
 
-init = False
-TOKEN = 0
+global logged
+logged = False
+login()
+logged = True
 
-buscarPublicaciones("Biden", 3)
+
+buscarPublicaciones("Trump", 3)
