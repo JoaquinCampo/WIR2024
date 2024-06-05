@@ -22,6 +22,18 @@ def login():
     TOKEN = res.json()['access_token']
 
 def buscarPublicaciones(entidad, next_post_id):
+    """
+    Fetches posts from the Reddit API based on the given entity.
+
+    Args:
+        entidad (str): The entity to search for in the posts.
+        next_post_id (str): The ID of the last fetched post. Used for pagination.
+
+    Returns:
+        tuple: A tuple containing a list of posts and the ID of the next post.
+
+    """
+
     headers = {
         'User-Agent': 'MyAPI/0.0.1',
         'Authorization': f'Bearer {TOKEN}'
@@ -31,7 +43,7 @@ def buscarPublicaciones(entidad, next_post_id):
     params = {
         'q': entidad,
         'sort': 'new',
-        'limit': 9,
+        'limit': 100,
         'restrict_sr': True
     }
 
@@ -42,14 +54,20 @@ def buscarPublicaciones(entidad, next_post_id):
     response_json = response.json()
 
     if response.status_code == 200:
-        formatted_json = simplejson.dumps(response_json, indent=4, sort_keys=True)
+        # formatted_json = simplejson.dumps(response_json, indent=4, sort_keys=True)
 
         posts = []
         for data in response_json['data']['children']:
             
             post = {
+                'related_entity': entidad,
                 'id': data['data']['id'],
-                'title': data['data']['title']
+                'name': data['data']['name'],
+                'title': data['data']['title'],
+                'text': data['data']['selftext'] or 'No text available',
+                'date': time.strftime("%Y%m%d", time.gmtime(data['data']['created_utc'])),
+                'cant_comments': data['data']['num_comments'],
+                'thumbsup': data['data']['score']
             }
             posts.append(post)
 
@@ -96,13 +114,22 @@ def collect_threads(comments, prefix=''):
     return threads
 
 def get_politician_data(Entity, next_id):
+    """
+    Retrieves data for a politician from Reddit API.
+
+    Args:
+        Entity (str): The name of the politician.
+        next_id (str): The ID of the next post to retrieve.
+
+    Returns:
+        tuple: A tuple containing a list of all posts and the ID of the next post.
+    """
+
     global logged
     logged = False
     login()
     logged = True
     cant_requests = 0
-
-    final_data = []
 
     all_posts = []
 
@@ -114,7 +141,7 @@ def get_politician_data(Entity, next_id):
     count = 0
     while next_id is not None and count < 10:
         cant_requests += 1
-        if cant_requests == 100:
+        if cant_requests == 1:
             print('Esperando 60 segundos para mantenerse dentro del limite de requests')
             cant_requests = 0
             time.sleep(55)   
@@ -123,22 +150,23 @@ def get_politician_data(Entity, next_id):
           all_posts.append(post)
         count += 1
 
-    posts_count = 0
-    for post in all_posts:
-        posts_count += 1
-        print(f'Count = {posts_count} _------------_ obteniendo comentarios')
-        data = fetch_comments(post['id'])
-        print('Comentarios obtenidos')
+    # Esta todo comentado pq no estamos utilizando los comentarios aun, en otra version tal vez se utilicen
+    # posts_count = 0
+    # for post in all_posts:
+    #     posts_count += 1
+    #     print(f'Count = {posts_count} _------------_ obteniendo comentarios')
+    #     data = fetch_comments(post['id'])
+    #     print('Comentarios obtenidos')
 
-        post_data = data[0]['data']['children'][0]['data']
-        post_author = post_data['author']
-        post_text = post_data['selftext'] or post_data['title']
+    #     post_data = data[0]['data']['children'][0]['data']
+    #     post_author = post_data['author']
+    #     post_text = post_data['selftext'] or post_data['title']
         
-        if post_author != 'AutoModerator':  # Avoid posts from 'AutoModerator'
-            comments = data[1]['data']['children']
-            unformatted_threads = collect_threads(comments)
-            unformatted_threads.pop(0)
-            for thread in unformatted_threads:
-                final_data.append(f'{post_author}: {post_text} \n{thread}')
+    #     if post_author != 'AutoModerator':  # Avoid posts from 'AutoModerator'
+    #         comments = data[1]['data']['children']
+    #         unformatted_threads = collect_threads(comments)
+    #         unformatted_threads.pop(0)
+    #         for thread in unformatted_threads:
+    #             final_data.append(f'{post_author}: {post_text} \n{thread}')
 
-    return final_data, next_id
+    return all_posts, next_id

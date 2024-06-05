@@ -9,6 +9,8 @@ services:
       - "9300:9300"
     networks:
       - elasticnet
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   web:
     build:
@@ -23,8 +25,9 @@ services:
       - "8000:8000"
     volumes:
       - ../app:/backend/app
-    command: ../docker/start.sh
-
 networks:
   elasticnet:
     driver: bridge
+
+volumes:
+  esdata:

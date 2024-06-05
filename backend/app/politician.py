@@ -3,16 +3,20 @@ import huggingface
 
 class Politician:
     """
-    A class to represent a politician.
-    
+    Represents a politician with their name, party, opinions, and other information.
+
     Attributes:
         name (str): The full name of the politician.
+        party (str): The political party the politician belongs to.
         first_name (str): The first name of the politician.
         last_name (str): The last name of the politician.
-        party (str): The political party of the politician.
-        opinions (array of ('thread', [{'label', 'score'})): An array that contains the opinions of the Politician
-                                                            and a measure of positivenes associated with the opinion.
-                                                            Example: [{'thread': 'Trump is normal', 'label': 'Neutral', 'score': 0.901429295539856}]
+        opinions (list): A list of opinions expressed by the politician.
+        after (str): A token used for pagination when retrieving politician data.
+
+    Methods:
+        split_name(name): Splits the full name into first and last name.
+        display_info(): Returns a string with the politician's information.
+        retrieve_info(): Retrieves and analyzes politician data from Reddit and Hugging Face.
     """
 
     def __init__(self, name, party):
@@ -37,24 +41,29 @@ class Politician:
         if len(parts) > 1:
             return (' '.join(parts[:-1]), parts[-1])
         else:
-            return (name, "")  # Single name 
+            return (name, "")
 
     def display_info(self):
+        """
+        Returns a string with the politician's information.
+
+        Returns:
+            str: The politician's information.
+        """
         return f"Name: {self.name}, First Name: {self.first_name}, Last Name: {self.last_name}, Party: {self.party}"
     
     def retrieve_info(self):
-        threads, self.after = redditAPI.get_politician_data(self.last_name, self.after)
+        """
+        Retrieves and analyzes politician data from Reddit and Hugging Face.
+        Updates the opinions list with the analyzed posts.
+
+        Returns:
+            None
+        """
+        posts, self.after = redditAPI.get_politician_data(self.last_name, self.after)
         
-        sentiment_results = huggingface.analyse_sentiment(self.last_name, threads)
+        scored_posts = huggingface.analyse_sentiment(self.last_name, posts)
         
-        i = 0
-        for sentiment in sentiment_results:
-            result = sentiment
-            opinion = {
-                'thread': threads[i],   # The results are returned in order according to the threads
-                'label': sentiment['label'],
-                'score': sentiment['score']
-            }
-            self.opinions.append(opinion)
-            i+= 1
+        for post in scored_posts:
+            self.opinions.append(post)
 
