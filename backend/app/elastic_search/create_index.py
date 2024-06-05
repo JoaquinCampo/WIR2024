@@ -10,6 +10,7 @@ def create_index():
         print("Connection successful")
 
     index_name = "posts_index"
+    
 
     mapping = {
         "mappings": {
