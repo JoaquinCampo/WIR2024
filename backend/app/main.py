@@ -1,5 +1,7 @@
 from politician import Politician
 import simplejson
+from elastic_search import iniciation, create_index
+from elasticsearch import Elasticsearch
 
 # politicians_2024 = [
 #     {"name": "Joe Biden", "party": "Democratic"},
@@ -24,8 +26,29 @@ import simplejson
 # for politician in politician_instances:
 #     politician.retrieve_info()
 
+print("Empezando el main--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
+iniciation.check_elasticsearch()
+create_index.create_index()
+
 Trump = Politician(name="Donald Trump", party="Republican")
 Trump.retrieve_info()
 
-simplejson.dumps(Trump.opinions, indent=4, sort_keys=True)
-print(simplejson.dumps(Trump.opinions, indent=4, sort_keys=True))
+es = Elasticsearch([{"host": "localhost", "port": 9200, "scheme":"http"}])
+
+for opinion in Trump.opinions:
+    res = es.index(index="posts_index", body=opinion)
+
+query = {
+    "query": {
+        "match_all": {}
+    }
+}
+
+# Execute search
+res = es.search(index="posts_index", body=query)
+
+# Print results
+print("Got %d Hits:" % res['hits']['total']['value'])
+for hit in res['hits']['hits']:
+    print(hit["_source"])

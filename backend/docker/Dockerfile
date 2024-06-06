@@ -10,4 +10,4 @@ RUN python -m pip install --upgrade pip && \
 COPY ../app .
 COPY ../docker/start.sh /backend/docker/start.sh
 
-CMD ["/backend/docker/start.sh"]
+CMD ["python ../docker/start.sh"]
