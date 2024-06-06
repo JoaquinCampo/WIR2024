@@ -1,3 +1,19 @@
+#Webir 2024
+
+Correr con npm run start o con npm start (no se la diferencia)
+
+
+
+
+
+
+
+
+
+
+
+# Doc de React -->
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
