@@ -1,0 +1,263 @@
+/* MAIN APP */
+.App{
+  /* background-color: #282c34; */
+  /* background-color: grey; */
+  /* min-height: 100vh; */
+  /* background-color: #00000; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  width: 100%;
+  height: 100%;
+  justify-items: center;
+  position: relative;
+}
+
+.test{
+  background-color: white;
+  width: 50px;
+  height: 40px;
+  position: relative;
+  z-index: 6;
+  left: 0%;
+}
+
+.main-Title{
+  font-family: 'Antipasto Pro', sans-serif;
+  font-size: 2.5em;
+}
+
+.main-body {
+  background-color: grey;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100vh;
+  height: auto;
+  /* background-color: lightgrey; */
+  justify-items: center;
+  position: relative;
+}
+
+/* LOGO */
+.logo {
+  height: 25vh;
+  width: auto;
+}
+
+/* BARRA BUSQUEDA */
+
+.search-container{
+  display:flex;
+  justify-content: space-between;
+  max-width: 400px;
+  width:100%;
+  margin-top: 30px;
+  height: 25px;
+  background-color: white;
+  border-radius: 25px;
+}
+
+.form{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+.Barra-busqueda {
+  position: relative;
+  border: 0;
+  margin: 10px;
+  font-size: 2vh;
+  border-radius: 5px;
+  text-align: center;
+  color: #282c34;
+  box-shadow: none;
+  text-shadow: none;
+  left: 24%;
+  outline: none;
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+}
+
+.Barra-busqueda:focus{
+  background-color: white;
+  border: 0;
+} 
+
+.Barra-busqueda::placeholder {
+  font-size: 0.9em;
+  padding-left: 2%;
+}
+
+.submit-button{
+  position: relative;
+  border: none;
+  background-color: white;
+  right: 2%;
+}
+.text {
+  background-color: black;
+}
+
+/* PROGRESS BAR */
+.progress-wrapper {
+  display: none; /* Initially hidden */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px; /* Adjust based on your layout */
+}
+
+.progress-wrapper.appear {
+  display: flex; 
+}
+
+.progressBar {
+  width: 55%;
+  height: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  opacity: 1; /* Ensure the progress bar is visible */
+
+  &::-webkit-progress-bar {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  &::-webkit-progress-value {
+    background-color: #76c7c0;
+    border-radius: 5px 0 0 5px;
+    transition: width 1s ease-in-out;
+  }
+
+  &::-moz-progress-bar {
+    background-color: #76c7c0;
+    border-radius: 5px 0 0 5px;
+    transition: width 1s ease-in-out;
+  }
+}
+/* ANIMACIONES */
+.appear {
+  opacity: 1;
+  visibility: visible;
+}
+
+.disappear {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.moved.appear {
+  transform: translateY(-100px);
+}
+
+.moved {
+  transition: 1s;
+  transform: translateY(-100px);
+}
+
+.finishedLoading {
+  opacity: 0;
+}
+
+.loading {
+  opacity: 1;
+}
+
+/* FONTS */
+
+@font-face {
+  font-family: 'Antipasto Pro';
+  src: url('../assets/fonts/AntipastoPro_trial.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* html { background: radial-gradient(circle at bottom, #0000, #08203c) } */
+
+/* body { */
+  /* position: relative;
+  z-index: -1;
+  --dots-gap: max(5px, 0.6vw);
+  --dots-size: 4px;
+  --dots-color: white;    
+  --ripples-size: 10vmin;
+  --ripples-opacity: 0%;
+  
+   --computed-dot-size: calc(var(--dots-size) / 2);
+  background-image: radial-gradient(
+    var(--dots-color) var(--computed-dot-size),
+    transparent var(--computed-dot-size)
+  ); 
+   background-size:
+    calc(var(--dots-gap) + var(--dots-size))
+    calc(var(--dots-gap) + var(--dots-size))
+  ; 
+  
+   mask-image: 
+    repeating-radial-gradient(
+      circle at top var(--y, -9999px) left var(--x, -9999px),
+      rgba(0 0 0 / var(--ripples-opacity)) 0,
+      rgba(0 0 0 / var(--ripples-opacity)) var(--ripples-size),
+      black calc(var(--ripples-size) + 1.5px),
+      black calc(var(--ripples-size) * 2),
+      rgba(0 0 0 / var(--ripples-opacity)) calc((var(--ripples-size) * 2) + 1.5px)
+  );  */
+/* } */
+/* html, body {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  block-size: 100%;
+  inline-size: 100%;
+  box-sizing: border-box;
+} */
+
+
+
+@use postcss-preset-env {
+  stage: 0;
+  preserve: false;
+  browsers: [
+    "last 1 Chrome versions",
+    "last 1 Firefox versions",
+    "last 1 Safari versions",
+    "last 1 Edge versions"
+  ]
+}
+
+/* SCROLL MAGIC */
+/* In your App.css or a similar CSS file */
+/* .spacer {
+  height: 100vh;
+}
+
+.trigger {
+  height: 100vh;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.animate {
+  opacity: 0;
+  transition: opacity 0.5s, transform 0.5s;
+} */
+
+
+/* BACKGROUND */
