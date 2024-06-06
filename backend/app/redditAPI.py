@@ -43,7 +43,7 @@ def buscarPublicaciones(entidad, next_post_id):
     params = {
         'q': entidad,
         'sort': 'new',
-        'limit': 100,
+        'limit': 1,
         'restrict_sr': True
     }
 
@@ -138,8 +138,8 @@ def get_politician_data(Entity, next_id):
     for post in posts:
         all_posts.append(post)
 
-    count = 0
-    while next_id is not None and count < 10:
+    count = 1
+    while next_id is not None and count < 1:
         cant_requests += 1
         if cant_requests == 1:
             print('Esperando 60 segundos para mantenerse dentro del limite de requests')

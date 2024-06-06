@@ -62,6 +62,8 @@ class Politician:
         """
         posts, self.after = redditAPI.get_politician_data(self.last_name, self.after)
         
+        print(f" la cantidad de posts es: {len(posts)}")
+
         scored_posts = huggingface.analyse_sentiment(self.last_name, posts)
         
         for post in scored_posts:
