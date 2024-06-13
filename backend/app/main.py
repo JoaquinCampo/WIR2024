@@ -38,6 +38,7 @@ es = Elasticsearch([{"host": "localhost", "port": 9200, "scheme":"http"}])
 
 for opinion in Trump.opinions:
     res = es.index(index="posts_index", body=opinion)
+    print(f"Document indexed with ID: {res['_id']}")
 
 query = {
     "query": {
@@ -45,10 +46,8 @@ query = {
     }
 }
 
-# Execute search
-res = es.search(index="posts_index", body=query)
+res = es.search(index="posts_index", body=query, size=1000)
 
-# Print results
-print("Got %d Hits:" % res['hits']['total']['value'])
-for hit in res['hits']['hits']:
-    print(hit["_source"])
+# Print retrieved documents
+for doc in res['hits']['hits']:
+    print(simplejson.dumps(doc['_source'], indent=4, sort_keys=True))
