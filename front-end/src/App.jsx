@@ -4,8 +4,9 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { zoomies } from 'ldrs';
 
-import { Flex, Box, Text, Divider, Grid, GridItem, Img, FormControl, FormErrorMessage, FormErrorIcon, Input } from "@chakra-ui/react";
-import { ChakraProvider } from '@chakra-ui/react';
+import { Flex, Text, Divider, Grid, GridItem, Img, Button, Heading,  } from "@chakra-ui/react";
+import { CloseIcon } from '@chakra-ui/icons';
+
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
 import Stat from './components/Stat';
@@ -14,22 +15,26 @@ import SuggestCard from "./components/SuggestCard";
 // import Scroll from "./components/Scroll";
 
 import candidates from "./politicians.json"
+import redditPosts from "./redditPosts.json"
+import results from "./results.json"
 
 zoomies.register()
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-
-let aux = false;
-
-
 function App() {
   const logo = "./logoWir.png";
   const [searchValue, setSearchValue] = useState("");
-  const [onSubmit, setOnSubmit] = React.useState(false);
-  const [waiting, setWaiting] = React.useState(false);
+  const [onSubmit, setOnSubmit] = useState(false);
+  const [waiting, setWaiting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [targetProgress, setTargetProgress] = useState(0);
+  const [progressTarget, setprogressTarget] = useState(0);
+  const [nextValue, setNextValue] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  // const bg_img = '../istockphoto-1432473911-170667a.webp';
+  const bg_img = {
+    backgroundImage: `url(${'../istockphoto-1432473911-170667a.webp'})`,
+    transform: "scaleX(-1)",
+  };
 
   const handleInputChange = (event) => {
     setSearchValue(event.target.value);
@@ -37,134 +42,146 @@ function App() {
   };
 
   const handlePresetInput = (name) => {
-    console.log(name + "2")
+    setprogressTarget(0);
     setSearchValue(name);
-    sendRequest(searchValue);
+    sendRequest(name); // Pass the candidate name directly to sendRequest
   }
 
   const formSubmit = (event) => {
     event.preventDefault();
-    if(searchValue.trim() != ""){
-      console.log("if");
+    if (searchValue.trim() !== "") {
       sendRequest(searchValue); // Pass the input value to the sendRequest function
-    }else{
-      console.log("else");
+    } else {
       setErrorMessage("Por favor ingrese una búsqueda");
     }
   };
-  
+
   useEffect(() => {
-    if (onSubmit && !waiting) {
-      const increment = (progress) / (70);
+    if (progressTarget > 0) {
+      // document.getElementById("scroll-point").scrollIntoView({
+      //   behavior: "smooth"
+      // });
+      var elm = document.querySelector('#progress-indicator');
+
+      const increment = progressTarget / 175;
       const interval = setInterval(() => {
         setProgress((prev) => {
-          const nextValue = prev + increment;
-          if (nextValue >= progress) {
+          setNextValue(prev + increment);
+          if (nextValue >= progressTarget) {
             clearInterval(interval);
-            return progress;
-          }
+            return progressTarget;
+            }
+          elm.innerHTML = Math.round(progress * 100) + '%';
           return nextValue;
         });
-      });
-
+      }, 1);
       return () => clearInterval(interval);
     }
-  });
+  }, [progressTarget, nextValue]);
 
-  function sendRequest(e) {
+  useEffect(() => {
+    window.scrollBy({
+      top: 85,
+      behavior: "smooth",
+    });
+  }, [progressTarget])
+
+  async function sendRequest(name) {
     setWaiting(true);
-    console.log(searchValue);
-    switch(searchValue){
-      case "Donald Trump": setProgress(0.5); break;
-      case "Joe Biden" : setProgress(0.85); break;
-      case "Nancy Pelosi": setProgress(0.2); break;
-      default: setProgress(parseInt(e));
+    setProgress(0);
+
+    // Simulate long-running function
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    switch (name) {
+      case "Donald Trump": setprogressTarget(0.5); break;
+      case "Joe Biden": setprogressTarget(0.85); break;
+      case "Nancy Pelosi": setprogressTarget(0.2); break;
+      default: setprogressTarget(parseInt(name));
     }
-    // setProgress(0.9);
-    setTimeout(() => {
       setOnSubmit(true);
       setWaiting(false);
-    }, 3000);
   }
 
+  function reset() {      
+    window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
 
+    setWaiting(false);
+    setOnSubmit(!onSubmit);
+  }
 
+  const maxItems = 3;
+  redditPosts = redditPosts.slice(0, maxItems);
   return (
-    <ChakraProvider>
-      <Flex className="App"  bg="#282c34"  width="100%">
-          <h1 className={`main-Title ${onSubmit && !waiting ? "moved" : ""}`}>Reputation Analyzer</h1>
-          
-          <Img src={logo} className={`logo ${onSubmit && !waiting ? "moved" : ""}`} alt="logoWir"/>
-          {/* <Scroll /> */}
+    <div className="noise-background" position="fixed" zIndex="-1">
+      <Flex className="App" display="inline" position="relative" color="white" height="100%" width="100%">
+        <Flex className="top-bg"  bg="#" position="relative" direction="column" min-height="100vh" height="fit-content" alignItems="center" >
+          <Flex className="header" position="relative" direction="column" alignItems="center" justifyContent="space-around" width="100%" marginTop="10vh">
+            <Flex direction="column" align="center" className={`${onSubmit && !waiting ? "moved" : ""}`} width="100%">
+              <Heading className="main-Title" _hover={{cursor:"default"}}> Reputation Analyzer</Heading>
+              <Img id="scroll-point" src={logo} className="logo" alt="logoWir" paddingTop="2%" />
+            </Flex>
 
-          <Flex className= {`search-container ${onSubmit || waiting ? "disappear" : ""}`} >
-            <form className="form" onSubmit={formSubmit} display="flex" alignItems="center"
-            justifyContent="center">
-              {/* <FormControl> */}
-                <input
-                border={0}
+            {onSubmit && !waiting &&
+            <Flex className="progress-wrapper" direction="column" transition="opacity 0.2s ease-in-out" height="30vh">
+                <CloseIcon color="#a7222c" onClick={reset} position="absolute" right="18%" top="65%"_hover={{color:"red", transform: 'scale(1.3)', transitionDuration: '100ms', WebkitTransform: 'scale(1.3)'}}/>      
+                  <progress id="progress-comment" className="progressBar" value={progress} max={1}></progress>
+                  <Text id='progress-indicator' _hover={{cursor:"default"}} position="relative" left="25%">0%</Text>
+                <Text id="progress-comment" fontSize="2em" position="absolute" bottom="0" bg="none" _hover={{cursor:"default"}}>as</Text>
+            </Flex>}
 
-                  name="request"
-                  className="Barra-busqueda"
-                  type="search"
-                  placeholder="Ingrese su búsqueda" 
-                  autoComplete="off"
-                  onChange={handleInputChange}
-                  />
-                  <button className="submit-button" type="search"> <FontAwesomeIcon icon={faSearch} color="#76c7c0"/> </button>
-                  {/* </FormControl> */}
-                {/* {errorMessage && <FormErrorIcon/>} */}
-                {errorMessage && <FormErrorMessage>{errorMessage}</FormErrorMessage>}
-            </form>
+            {waiting &&
+            <Flex margin="15%">
+              <l-zoomies position="absolute" size="150" stroke="2" bg-opacity="0" speed="0.7" color="cyan"></l-zoomies>
+            </Flex>}
+          </Flex> 
+
+          <Flex className="idea-container" bgImage={bg_img} marginBottom={1} transition="opacity 0.35s ease-in-out" direction="column" width="80%" marginTop="7vh" display={!onSubmit && !waiting? "" : "none"}>
+            <Flex direction="row" alignItems="start" marginTop="2%" justifyContent="center">
+              <Flex direction="column" width="30%" marginRight="5%">
+                <Divider borderColor="gray.300" ></Divider>
+                <Text className="party-name-text" margin="5%" align="center"> Republican Party </Text>
+
+                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(20%, 1fr))" gap={10} left="15%">
+                  {candidates.filter(candidate => candidate.party === 'Republican Party').map((candidate, index) => (
+                    <GridItem className="suggest-card"  overflow="hidden" key={index} _hover={{ cursor: "grab" }} onClick={() => handlePresetInput(candidate.name)}>
+                      <SuggestCard  candidateName={candidate.name} candidateImage={candidate.image} />
+                    </GridItem>
+                  ))}
+                </Grid>
+              </Flex>
+              <Flex  zIndex="1" direction="column" width="30%" marginLeft="5%">
+                <Divider borderColor="gray.300" ></Divider>
+                <Text className="party-name-text" margin="5%"align="center"> Democratic Party</Text>
+                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(20%, 1fr))" gap={10} left="15%">
+                  {candidates.filter(candidate => candidate.party === 'Democratic Party').map((candidate, index) => (
+                    <GridItem key={index} _hover={{ cursor: "grab" }} onClick={() => handlePresetInput(candidate.name)}>
+                      <SuggestCard candidateName={candidate.name} candidateImage={candidate.image} />
+                    </GridItem>
+                  ))}
+                </Grid>
+              </Flex>
+            </Flex>
           </Flex>
-
-          {onSubmit && !waiting && <Flex className="progress-wrapper" opacity={onSubmit && !waiting ? 1 : 0}
-          transition="opacity 0.2s ease-in-out" >
-            <progress className="progressBar" value={progress} max = {1} />
-          </Flex>}
-
-          {waiting &&<l-zoomies
-            size="150"
-            stroke="2"
-            bg-opacity="0"
-            speed="0.7" 
-            color="cyan" 
-            ></l-zoomies>}
-        {/* <Flex className="idea-container-background" bg="white" width="80%"> */}
-          <Flex direction="column" className="idea-container" bg="#282c34" paddingLeft="5%" paddingTop="5%" width="80%" marginTop="15%"borderRadius="10px" opacity={!onSubmit || waiting ? 1 : 0}>
-            <Divider borderColor="gray.300" ></Divider>
-            <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(12%, 1fr))" gap={10} left="15%">
-              {candidates.map((candidate, index) => (
-                <GridItem _hover={{cursor:"grab"}} onClick={() => handlePresetInput(candidate.name.toString())}>
-                  <SuggestCard  key={index} candidateName={candidate.name} candidateImage={candidate.image}/>
-                </GridItem>
-              ))}
-            </Grid>
-          </Flex>
-        {/* </Flex> */}
-
-          <Flex className="reddit-posts"  width="100%" borderRadius={20} margin="15%" color="black" opacity={onSubmit && !waiting ? 1 : 0}
-            transition="opacity 0.35s ease-in-out" justifyContent="space-between" bg="none">
-              {/* <Flex className="reddit-post-wrapper"  bg="#ff9a00" borderRadius={12}> */}
-                <RedditPost title="Question: What makes a good Security Engineer?" subreddit="r/politics" date="2 d ago" content="In your opinion what makes or breaks a good Security Engineer in the AppSec or IaC world?"  upvotes="5"/>
-              {/* </Flex> */}
-              {/* <Flex className="reddit-post-wrapper"  bg="#ff9a00" borderRadius={12}> */}
-                <RedditPost title="Question: What makes a good Security Engineer?" subreddit="r/politics" date="2 d ago" content="In your opinion what makes or breaks a good Security Engineer in the AppSec or IaC world?" upvotes="5"/>
-              {/* </Flex> */}
-              {/* <Flex className="reddit-post-wrapper"  bg="#ff9a00" borderRadius={12}> */}
-                <RedditPost title="Question: What makes a good Security Engineer?" subreddit="r/politics" date="2 d ago" content="In your opinion what makes or breaks a good Security Engineer in the AppSec or IaC world?" upvotes="5"/>
-              {/* </Flex> */}
-          </Flex>
-          <Flex direction="column" bg="green" position="absolute" className="statistics" width="100%" height="auto" opacity={onSubmit && !waiting ? 1 : 0}   justifyContent="space-between" alignItems="center">
-            <div className="test"></div>
-            <Stat></Stat>
-            <Stat></Stat>
-          </Flex>
-
         </Flex>
-    </ChakraProvider>
+
+        <Flex className="lower-bg" bg="#051b33" direction="column" min-height="100vh" height="100vh" alignItems="center" sx={{clipPath: onSubmit ? 'polygon(0% 0%, 50% 4%, 100% 0%, 100% 100%, 0% 110%)' : 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}} display={onSubmit || waiting ? "flex" : "none"}>
+          <Grid className="reddit-posts" position="absolute" width="80%" templateColumns="repeat(auto-fit, minmax(32%, 1fr))" gap={4} borderRadius={20} margin="5%" color="black" opacity={onSubmit && !waiting ? 1 : 0} transition="opacity 0.35s ease-in-out" justifyContent="space-between">
+            {redditPosts.map((post, index) => (
+              // <Flex className="reddit-post-wrapper" bg="#ff9a00" borderRadius={12}>
+              <GridItem>
+                <RedditPost title={post.title} subreddit={post.subreddit} date={post.date} content={post.content} upvotes={post.upvotes} _hover={{}} />
+              </GridItem>
+              // </Flex>
+            ))}   
+          </Grid>
+        </Flex>
+      </Flex>
+    </div>
   );
 }
 
 export default App;
-

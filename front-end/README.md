@@ -1,4 +1,4 @@
-#Webir 2024
+# Webir 2024
 
 Correr con npm run start o con npm start (no se la diferencia)
 
@@ -12,7 +12,7 @@ Correr con npm run start o con npm start (no se la diferencia)
 
 
 
-# Doc de React -->
+# Docnpm  de React -->
 
 # Getting Started with Create React App
 

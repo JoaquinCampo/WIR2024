@@ -1,0 +1,37 @@
+[
+    {
+    "title": "Question: What makes a good Security Engineer?",
+    "subreddit": "r/politics",
+    "date": "2 d ago",
+    "content": "In your opinion, what makes or breaks a good Security Engineer in the AppSec or IaC world?",
+    "upvotes": 5
+    },
+    {
+    "title": "Discussion: The impact of AI on job markets",
+    "subreddit": "r/technology",
+    "date": "3 d ago",
+    "content": "How do you think AI will reshape the job markets in the next decade?",
+    "upvotes": 10
+    },
+    {
+    "title": "Help: Learning React for beginners",
+    "subreddit": "r/learnprogramming",
+    "date": "1 d ago",
+    "content": "What resources would you recommend for someone just starting out with React?",
+    "upvotes": 20
+    },
+    {
+    "title": "News: New advancements in Quantum Computing",
+    "subreddit": "r/science",
+    "date": "4 d ago",
+    "content": "Scientists have made significant strides in the field of quantum computing. What are your thoughts?",
+    "upvotes": 15
+    },
+    {
+    "title": "Opinion: The future of renewable energy",
+    "subreddit": "r/environment",
+    "date": "5 d ago",
+    "content": "Do you think renewable energy can completely replace fossil fuels in the near future?",
+    "upvotes": 25
+    }
+]
