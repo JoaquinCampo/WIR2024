@@ -1,0 +1,37 @@
+.reddit-posts {
+
+    /* display: inline;
+    background-color: grey;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px;
+    color: black; */
+}
+
+.reddit-post-title {
+    font-weight: 600;
+}
+
+.reddit-post-wrapper {
+
+}
+
+.reddit-upvote-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.reddit-upvote-background{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.reddit-upvote-arrow:hover{
+    color: #ff9a00
+}
+
+.reddit-downvote-arrow:hover{
+    color: #6b5dff
+}
