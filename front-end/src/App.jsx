@@ -1,7 +1,5 @@
 import "./styles/App.css";
 import React, { useState, useEffect } from "react";
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { zoomies } from 'ldrs';
 
 import { Flex, Text, Divider, Grid, GridItem, Img, Button, Heading,  } from "@chakra-ui/react";
@@ -12,7 +10,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import Stat from './components/Stat';
 import RedditPost from "./components/RedditPost";
 import SuggestCard from "./components/SuggestCard";
-// import Scroll from "./components/Scroll";
 
 import candidates from "./politicians.json"
 import redditPosts from "./redditPosts.json"
@@ -30,11 +27,14 @@ function App() {
   const [progressTarget, setprogressTarget] = useState(0);
   const [nextValue, setNextValue] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
-  // const bg_img = '../istockphoto-1432473911-170667a.webp';
-  const bg_img = {
-    backgroundImage: `url(${'../istockphoto-1432473911-170667a.webp'})`,
-    transform: "scaleX(-1)",
-  };
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  let candidatePost = {};
+  let formattedDate;
+
 
   const handleInputChange = (event) => {
     setSearchValue(event.target.value);
@@ -44,13 +44,13 @@ function App() {
   const handlePresetInput = (name) => {
     setprogressTarget(0);
     setSearchValue(name);
-    sendRequest(name); // Pass the candidate name directly to sendRequest
+    sendRequest(name);
   }
 
   const formSubmit = (event) => {
     event.preventDefault();
     if (searchValue.trim() !== "") {
-      sendRequest(searchValue); // Pass the input value to the sendRequest function
+      sendRequest(searchValue);
     } else {
       setErrorMessage("Por favor ingrese una búsqueda");
     }
@@ -58,12 +58,9 @@ function App() {
 
   useEffect(() => {
     if (progressTarget > 0) {
-      // document.getElementById("scroll-point").scrollIntoView({
-      //   behavior: "smooth"
-      // });
       var elm = document.querySelector('#progress-indicator');
 
-      const increment = progressTarget / 175;
+      const increment = progressTarget / 10;
       const interval = setInterval(() => {
         setProgress((prev) => {
           setNextValue(prev + increment);
@@ -86,13 +83,34 @@ function App() {
     });
   }, [progressTarget])
 
+  useEffect(() => {
+    let url= 'http://127.0.0.1:8000/politician'
+    fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      setData(data);
+      formattedDate = data.date[6] + data.date[7] + '/' + data.date[4] + data.date[5] + '/' + data.date[0] + data.date[1] + data.date[2] + data.date[3];
+      setWaiting(false);
+    })
+    .catch(error => {
+      setError(error);
+      setWaiting(false);
+    });
+  }, []);
+    
   async function sendRequest(name) {
     setWaiting(true);
     setProgress(0);
 
-    // Simulate long-running function
-    await new Promise(resolve => setTimeout(resolve, 2000));
+  // Simulate long-running function
+    // await new Promise(resolve => setTimeout(resolve, 2000));
 
+  
     switch (name) {
       case "Donald Trump": setprogressTarget(0.5); break;
       case "Joe Biden": setprogressTarget(0.85); break;
@@ -105,18 +123,20 @@ function App() {
 
   function reset() {      
     window.scrollTo({
-    top: 0,
+      top: 0,
     behavior: "smooth",
-  });
+    });
 
     setWaiting(false);
     setOnSubmit(!onSubmit);
-  }
+    }
 
-  const maxItems = 3;
-  redditPosts = redditPosts.slice(0, maxItems);
+    const maxItems = 3;
+    redditPosts = redditPosts.slice(0, maxItems);
+
+
   return (
-    <div className="noise-background" position="fixed" zIndex="-1">
+    <div className="noise-background" position="fixed" zindex="-1">
       <Flex className="App" display="inline" position="relative" color="white" height="100%" width="100%">
         <Flex className="top-bg"  bg="#" position="relative" direction="column" min-height="100vh" height="fit-content" alignItems="center" >
           <Flex className="header" position="relative" direction="column" alignItems="center" justifyContent="space-around" width="100%" marginTop="10vh">
@@ -139,7 +159,7 @@ function App() {
             </Flex>}
           </Flex> 
 
-          <Flex className="idea-container" bgImage={bg_img} marginBottom={1} transition="opacity 0.35s ease-in-out" direction="column" width="80%" marginTop="7vh" display={!onSubmit && !waiting? "" : "none"}>
+          <Flex className="idea-container" marginBottom={1} transition="opacity 0.35s ease-in-out" direction="column" width="80%" marginTop="7vh" display={!onSubmit && !waiting? "" : "none"}>
             <Flex direction="row" alignItems="start" marginTop="2%" justifyContent="center">
               <Flex direction="column" width="30%" marginRight="5%">
                 <Divider borderColor="gray.300" ></Divider>
@@ -153,7 +173,7 @@ function App() {
                   ))}
                 </Grid>
               </Flex>
-              <Flex  zIndex="1" direction="column" width="30%" marginLeft="5%">
+              <Flex  zindex="1" direction="column" width="30%" marginLeft="5%">
                 <Divider borderColor="gray.300" ></Divider>
                 <Text className="party-name-text" margin="5%"align="center"> Democratic Party</Text>
                 <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(20%, 1fr))" gap={10} left="15%">
@@ -168,15 +188,18 @@ function App() {
           </Flex>
         </Flex>
 
-        <Flex className="lower-bg" bg="#051b33" direction="column" min-height="100vh" height="100vh" alignItems="center" sx={{clipPath: onSubmit ? 'polygon(0% 0%, 50% 4%, 100% 0%, 100% 100%, 0% 110%)' : 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}} display={onSubmit || waiting ? "flex" : "none"}>
-          <Grid className="reddit-posts" position="absolute" width="80%" templateColumns="repeat(auto-fit, minmax(32%, 1fr))" gap={4} borderRadius={20} margin="5%" color="black" opacity={onSubmit && !waiting ? 1 : 0} transition="opacity 0.35s ease-in-out" justifyContent="space-between">
+        <Flex className="lower-bg" bg="#051b33" direction="column" min-height="100vh" height="fit-content" alignItems="center" sx={{clipPath: onSubmit ? 'polygon(0% 0%, 50% 4%, 100% 0%, 100% 100%, 0% 110%)' : 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}} display={onSubmit || waiting ? "flex" : "none"}>
+          <Grid className="reddit-posts" width="80%" templateColumns="repeat(auto-fit, minmax(32%, 1fr))" gap={4} borderRadius={20} margin="5%" color="black" opacity={onSubmit && !waiting ? 1 : 0} transition="opacity 0.35s ease-in-out" justifyContent="space-between">
             {redditPosts.map((post, index) => (
               // <Flex className="reddit-post-wrapper" bg="#ff9a00" borderRadius={12}>
-              <GridItem>
+              <GridItem key={index}>
                 <RedditPost title={post.title} subreddit={post.subreddit} date={post.date} content={post.content} upvotes={post.upvotes} _hover={{}} />
               </GridItem>
               // </Flex>
-            ))}   
+            ))}  
+              <GridItem key={57}>
+                <RedditPost name={data.name} title={data.title} subreddit={data.subreddit} date={formattedDate} content={data.text === 'No text available.' ? data.text : ''} upvotes={data.thumbsup} _hover={{}} />
+              </GridItem>
           </Grid>
         </Flex>
       </Flex>
