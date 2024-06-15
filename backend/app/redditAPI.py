@@ -21,6 +21,12 @@ def login():
     res = rq.post('https://www.reddit.com/api/v1/access_token', auth=auth, data=data, headers=headers)
     TOKEN = res.json()['access_token']
 
+def extract_subreddit(url):
+    parts = url.split('/')
+    if len(parts) > 2:
+        return f"{parts[1]}/{parts[2]}"
+    return None
+
 def buscarPublicaciones(entidad, next_post_id):
     """
     Fetches posts from the Reddit API based on the given entity.
@@ -43,7 +49,7 @@ def buscarPublicaciones(entidad, next_post_id):
     params = {
         'q': entidad,
         'sort': 'new',
-        'limit': 1,
+        'limit': 100,
         'restrict_sr': True
     }
 
@@ -55,6 +61,7 @@ def buscarPublicaciones(entidad, next_post_id):
 
     if response.status_code == 200:
         # formatted_json = simplejson.dumps(response_json, indent=4, sort_keys=True)
+        # print(formatted_json)
 
         posts = []
         for data in response_json['data']['children']:
@@ -67,7 +74,9 @@ def buscarPublicaciones(entidad, next_post_id):
                 'text': data['data']['selftext'] or 'No text available',
                 'date': time.strftime("%Y%m%d", time.gmtime(data['data']['created_utc'])),
                 'cant_comments': data['data']['num_comments'],
-                'thumbsup': data['data']['score']
+                'thumbsup': data['data']['score'],
+                "link": "reddit.com" + data['data']['permalink'],
+                "subreddit": extract_subreddit(data['data']['permalink'])
             }
             posts.append(post)
 
@@ -141,7 +150,7 @@ def get_politician_data(Entity, next_id):
     count = 1
     while next_id is not None and count < 1:
         cant_requests += 1
-        if cant_requests == 1:
+        if cant_requests == 100:
             print('Esperando 60 segundos para mantenerse dentro del limite de requests')
             cant_requests = 0
             time.sleep(55)   
