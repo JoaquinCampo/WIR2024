@@ -10,7 +10,6 @@ def create_index():
         print("Connection successful")
 
     index_name = "posts_index"
-    
 
     mapping = {
         "mappings": {
@@ -23,8 +22,10 @@ def create_index():
                 "date": {"type": "date", "format": "yyyyMMdd"},
                 "cant_comments": {"type": "integer"},
                 "thumbsup": {"type": "integer"},
+                "link": {"type": "text"},
+                "subreddit": {"type": "text"},
                 "sentiment": {"type": "text"},
-                "score":{"type": "integer"}
+                "score": {"type": "integer"}
             }
         }
     }
