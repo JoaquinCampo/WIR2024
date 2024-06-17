@@ -147,17 +147,11 @@ def get_politician_data(Entity, next_id):
     
 
     count = 1
-    cant_requests = 1
     posts, next_id = buscarPublicaciones(Entity, next_id)
     for post in posts:
         all_posts.append(post)
 
-    while next_id is not None and count < 100:
-        cant_requests += 1
-        if cant_requests == 100:
-            print('Esperando 60 segundos para mantenerse dentro del limite de requests')
-            cant_requests = 0
-            time.sleep(60)   
+    while next_id is not None and count < 10:
         posts, next_id = buscarPublicaciones(Entity, next_id)
         for post in posts:
           all_posts.append(post)

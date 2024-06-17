@@ -86,12 +86,18 @@ create_index.create_index()
 # List to store the politicians.
 # politician_instances = []
 
-for politician_info in politicians_2024:
-    new_politician = Politician(name=politician_info["name"], party=politician_info["party"])
-    politicians_2024.append(new_politician)
+biden = Politician("Joe Biden", "Democratic Party")
+biden.retrieve_info()
 
-for politician in politicians_2024:
-    politician.retrieve_info()
+trump = Politician("Donald Trump", "Republican Party")
+trump.retrieve_info()
+
+kharris = Politician("Kamala Harris", "Democratic Party")
+kharris.retrieve_info()
+
+tcruz = Politician("Ted Cruz", "Republican Party")
+tcruz.retrieve_info()
+
 
 # # Delete all data in the "posts_index"
 # delete_all_data("posts_index")
