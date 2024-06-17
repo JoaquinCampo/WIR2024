@@ -73,26 +73,6 @@ politicians_2024 = [
       "party": "Democratic Party",
     },
     {
-      "name": "Nancy Pelosi",
-      "party": "Democratic Party",
-    },
-    {
-      "name": "Kevin McCarthy",
-      "party": "Republican Party",
-    },
-    {
-      "name": "Chuck Schumer",
-      "party": "Democratic Party",
-    },
-    {
-      "name": "Mitch McConnell",
-      "party": "Republican Party",
-    },
-    {
-      "name": "Alexandria Ocasio-Cortez",
-      "party": "Democratic Party",
-    },
-    {
       "name": "Ted Cruz",
       "party": "Republican Party",
     }
@@ -106,13 +86,12 @@ create_index.create_index()
 # List to store the politicians.
 # politician_instances = []
 
-# for politician_info in politicians_2024:
-#     new_politician = Politician(name=politician_info["name"], party=politician_info["party"])
-#     politician_instances.append(new_politician)
+for politician_info in politicians_2024:
+    new_politician = Politician(name=politician_info["name"], party=politician_info["party"])
+    politicians_2024.append(new_politician)
 
-# for politician in politician_instances:
-#     politician.retrieve_info()
-
+for politician in politicians_2024:
+    politician.retrieve_info()
 
 # # Delete all data in the "posts_index"
 # delete_all_data("posts_index")
@@ -126,14 +105,13 @@ create_index.create_index()
 # Trump = Politician(name="Donald Trump", party="Republican")
 # Trump.retrieve_info()
 
+# # Get the count of documents in the "posts_index"
+# posts_index_count = get_document_count("posts_index")
+# print(f"Number of documents in posts_index: {posts_index_count}")
 
-# Get the count of documents in the "posts_index"
-posts_index_count = get_document_count("posts_index")
-print(f"Number of documents in posts_index: {posts_index_count}")
-
-# Get the count of documents in the "last_retrieved_post" index
-last_retrieved_post_count = get_document_count("last_retrieved_post")
-print(f"Number of documents in last_retrieved_post: {last_retrieved_post_count}")
+# # Get the count of documents in the "last_retrieved_post" index
+# last_retrieved_post_count = get_document_count("last_retrieved_post")
+# print(f"Number of documents in last_retrieved_post: {last_retrieved_post_count}")
 
 # # Fetch and print all documents from the "posts_index"
 # posts_index_documents = fetch_all_documents("posts_index")

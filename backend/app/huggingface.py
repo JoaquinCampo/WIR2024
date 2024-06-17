@@ -28,7 +28,7 @@ def analyse_sentiment(entity, posts):
 
     results = []
 
-    phrases = [post['title'] + ' ' + post['text'] for post in posts]
+    phrases = [post['comment'] for post in posts]
 
 
     batch_size = 4

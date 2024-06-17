@@ -48,9 +48,10 @@ def buscarPublicaciones(entidad, next_post_id):
     url = 'https://oauth.reddit.com/r/politics/search.json'
     params = {
         'q': entidad,
-        'sort': 'new',
-        'limit': 1,
-        'restrict_sr': True
+        'sort': 'relevance',
+        'limit': 100,
+        'restrict_sr': True,
+        't': 'week'
     }
 
     if next_post_id is not None:
@@ -151,7 +152,7 @@ def get_politician_data(Entity, next_id):
     for post in posts:
         all_posts.append(post)
 
-    while next_id is not None and count < 1:
+    while next_id is not None and count < 100:
         cant_requests += 1
         if cant_requests == 100:
             print('Esperando 60 segundos para mantenerse dentro del limite de requests')
@@ -167,23 +168,29 @@ def get_politician_data(Entity, next_id):
     # Esta todo comentado pq no estamos utilizando los comentarios aun, en otra version tal vez se utilicen
     final_data = []
     response_count = 0
+    posts_count = 0
     for post in all_posts:
+        print(f"comentarios procesados: {response_count}")
         if response_count == 10000:
             break
         posts_count += 1
         print(f'Count = {posts_count} _------------_ obteniendo comentarios')
         data = fetch_comments(post['id'])
+        cant_requests += 1
+
         print('Comentarios obtenidos')
 
         post_data = data[0]['data']['children'][0]['data']
         post_author = post_data['author']
-        post_text = post_data['selftext'] or post_data['title']
         
         if post_author != 'AutoModerator':  # Avoid posts from 'AutoModerator'
             comments = data[1]['data']['children']
-            formatted_json = simplejson.dumps(comments, indent=4, sort_keys=True)
-            print(formatted_json)
+            cant_comments = 0
             for comment in comments:
+                if cant_comments == 50:
+                    break
+                if comment['kind'] != 't1':
+                    continue 
                 response = {
                     'related_entity': Entity,
                     'id': post['id'],
@@ -194,16 +201,12 @@ def get_politician_data(Entity, next_id):
                     'thumbsup': comment['data']['score'],
                     "link": "reddit.com" + comment['data']['permalink'],
                     "subreddit": extract_subreddit(comment['data']['permalink']),
-                    "comment": comment["body"]
+                    "comment": comment['data']["body"]
                 }
+                print(time.strftime("%Y%m%d", time.gmtime(comment['data']['created_utc'])))
                 final_data.append(response)
                 response_count += 1
-    #         unformatted_threads = collect_threads(comments)
-    #         unformatted_threads.pop(0)
-    #         for thread in unformatted_threads:
-    #             final_data.append(f'{post_author}: {post_text} \n{thread}')
+                cant_comments += 1
 
-    return all_posts, next_id
-
-login()
-a,b=get_politician_data('Donald Trump', None)
+    print(f"comentarios procesados: {response_count}")
+    return final_data, next_id
