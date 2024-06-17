@@ -81,6 +81,9 @@ def buscarPublicaciones(entidad, next_post_id):
             posts.append(post)
 
         next_id = response_json['data']['after']
+        if next_id is None:
+            print(response_json['data']['after'])
+
         return posts, next_id
         
     else:
@@ -138,27 +141,29 @@ def get_politician_data(Entity, next_id):
     logged = False
     login()
     logged = True
-    cant_requests = 0
 
     all_posts = []
 
-    cant_requests += 1
+    count = 1
+    cant_requests = 1
     posts, next_id = buscarPublicaciones(Entity, next_id)
     for post in posts:
         all_posts.append(post)
 
-    count = 1
     while next_id is not None and count < 1:
+        time.sleep(2)
         cant_requests += 1
         if cant_requests == 100:
             print('Esperando 60 segundos para mantenerse dentro del limite de requests')
             cant_requests = 0
-            time.sleep(55)   
+            time.sleep(60)   
         posts, next_id = buscarPublicaciones(Entity, next_id)
         for post in posts:
           all_posts.append(post)
         count += 1
 
+    if next_id is None:
+        print("NEXT ID IS NONE")
     # Esta todo comentado pq no estamos utilizando los comentarios aun, en otra version tal vez se utilicen
     # posts_count = 0
     # for post in all_posts:
