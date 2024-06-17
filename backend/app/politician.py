@@ -93,12 +93,12 @@ class Politician:
                     "title": {"type": "text"},
                     "text": {"type": "text"},
                     "date": {"type": "date", "format": "yyyyMMdd"},
-                    "cant_comments": {"type": "integer"},
                     "thumbsup": {"type": "integer"},
                     "link": {"type": "text"},
                     "subreddit": {"type": "text"},
                     "sentiment": {"type": "text"},
-                    "score": {"type": "integer"}
+                    "score": {"type": "integer"},
+                    "comment": {"type": "text"}
                 }
             }
         }

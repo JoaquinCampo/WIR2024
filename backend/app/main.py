@@ -120,6 +120,9 @@ create_index.create_index()
 # # Delete all data in the "last_retrieved_post"
 # delete_all_data("last_retrieved_post")
 
+# Delete an index
+# create_index.delete_index("posts_index")
+
 # Trump = Politician(name="Donald Trump", party="Republican")
 # Trump.retrieve_info()
 

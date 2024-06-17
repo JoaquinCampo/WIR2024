@@ -27,12 +27,12 @@ def create_index():
                 "title": {"type": "text"},
                 "text": {"type": "text"},
                 "date": {"type": "date", "format": "yyyyMMdd"},
-                "cant_comments": {"type": "integer"},
                 "thumbsup": {"type": "integer"},
                 "link": {"type": "text"},
                 "subreddit": {"type": "text"},
                 "sentiment": {"type": "text"},
-                "score": {"type": "integer"}
+                "score": {"type": "integer"},
+                "comment": {"type": "text"}
             }
         }
     }
@@ -67,5 +67,18 @@ def create_index():
     else:
         print(f"The index {index_name} already exists.")
 
-# Run the function to create the indices
-create_index()
+def delete_index(index_name):
+    elasticsearch_connection = Elasticsearch([{"host": "localhost", "port": 9200, "scheme": "http"}])
+
+    # Check if the connection is successful
+    if not elasticsearch_connection.ping():
+        raise ValueError("Connection failed")
+    else:
+        print("Connection successful")
+
+    # Delete the index if it exists
+    if elasticsearch_connection.indices.exists(index=index_name):
+        elasticsearch_connection.indices.delete(index=index_name)
+        print(f"Index {index_name} deleted successfully.")
+    else:
+        print(f"The index {index_name} does not exist.")
