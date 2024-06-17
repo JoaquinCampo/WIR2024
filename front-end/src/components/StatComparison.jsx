@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box } from '@chakra-ui/react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
@@ -7,19 +7,38 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 
 function Stat(props) {
+  const [stats, setStats] = useState([]);
+
+  let url= 'http://127.0.0.1:8000/politician/' + props.name;
+    fetch(url)
+    .then(response => {
+      return response.json();
+    })
+    .then(stats => {
+      setStats(stats);
+    })
+    .catch(error => {
+    });
+
   let array = new Array()
   for(let i = 30; i >= 0; i--)
     array.push(i);
   array.push('Hoy');
-    let data = {
+  let data = {
         labels: array,
         datasets: [
           {
             label: props.name,
-            data: [65, 59, , 80, 81, 56, 55, 40],
+            data: stats,
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          }
+          },
+          {
+            label: 'Joe Biden',
+            data: ,
+            borderColor: 'rgb(72, 177, 144)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          },
         ],
       };
       
@@ -30,8 +49,8 @@ function Stat(props) {
             position: 'top',
           },
           title: {
-            display: true,
-            text: 'Registro de reputaciones del último mes',
+            display: false,
+            text: 'Chart.js Line Chart',
           },
         },
         y: {
@@ -41,7 +60,7 @@ function Stat(props) {
       };
       
   return (
-    <Box width="600px" height="400px">
+    <Box width="40vw">
       <Line data={data} options={options} />
     </Box>
   );
