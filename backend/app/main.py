@@ -87,32 +87,33 @@ create_index.create_index()
 # politician_instances = []
 
 
-trump = Politician("Donald Trump", "Republican Party")
-trump.retrieve_info()
+# trump = Politician("Donald Trump", "Republican Party")
+# trump.retrieve_info()
 
-biden = Politician("Joe Biden", "Democratic Party")
-biden.retrieve_info()
+# biden = Politician("Joe Biden", "Democratic Party")
+# biden.retrieve_info()
 
-kharris = Politician("Kamala Harris", "Democratic Party")
-kharris.retrieve_info()
+# kharris = Politician("Kamala Harris", "Democratic Party")
+# kharris.retrieve_info()
 
-tcruz = Politician("Ted Cruz", "Republican Party")
-tcruz.retrieve_info()
+# tcruz = Politician("Ted Cruz", "Republican Party")
+# tcruz.retrieve_info()
 
-npelosi = Politician("Nancy Pelosi", "Democratic Party")
-npelosi.retrieve_info()
+# npelosi = Politician("Nancy Pelosi", "Democratic Party")
+# npelosi.retrieve_info()
 
-kmark = Politician("Kevin McCarthy", "Republican Party")
-kmark.retrieve_info()
+# kmark = Politician("Kevin McCarthy", "Republican Party")
+# kmark.retrieve_info()
 
-chshu = Politician("Chuck Schumer", "Democratic Party")
-chshu.retrieve_info()
+# NO TIENE DATA
+# chshu = Politician("Chuck Schumer", "Democratic Party")
+# chshu.retrieve_info()
 
-mmcc = Politician("Mitch McConnell", "Republican Party")
-mmcc.retrieve_info()
+# mmcc = Politician("Mitch McConnell", "Republican Party")
+# mmcc.retrieve_info()
 
-alexocaco = Politician("Alexandria Ocasio-Cortez", "Democratic Party")
-alexocaco.retrieve_info()
+# alexocaco = Politician("Alexandria Ocasio-Cortez", "Democratic Party")
+# alexocaco.retrieve_info()
 
 
 # # Delete all data in the "posts_index"
@@ -127,9 +128,9 @@ alexocaco.retrieve_info()
 # Trump = Politician(name="Donald Trump", party="Republican")
 # Trump.retrieve_info()
 
-# # Get the count of documents in the "posts_index"
-# posts_index_count = get_document_count("posts_index")
-# print(f"Number of documents in posts_index: {posts_index_count}")
+# Get the count of documents in the "posts_index"
+posts_index_count = get_document_count("posts_index")
+print(f"Number of documents in posts_index: {posts_index_count}")
 
 # # Get the count of documents in the "last_retrieved_post" index
 # last_retrieved_post_count = get_document_count("last_retrieved_post")

@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import Elasticsearch
 import simplejson
 from datetime import datetime, timedelta
+import json
+import numpy as np
+import random
+import redditAPI
+import huggingface
 
 app = FastAPI()
 
@@ -93,7 +98,8 @@ def get_statistics(Politician):
             "match": {
                 "related_entity": Politician
             }
-        }
+        },
+        "size": 10000
     }
     
     response = es.search(index=index_name, body=query)
@@ -101,8 +107,6 @@ def get_statistics(Politician):
     results = [hit['_source'] for hit in hits]
 
     grouped_data = group_by_date(results)
-
-    print(simplejson.dumps(grouped_data, indent=4, sort_keys=True))
 
     today = datetime.now().date()
     res = []
@@ -129,227 +133,110 @@ def three_posts(Politician):
     index_name = "posts_index"
 
     query = {
-        "query": {
+        "query": { 
             "match": {
                 "related_entity": Politician
             }
-        }
+        },
+        "size": 10000
     }
 
     response = es.search(index=index_name, body=query)
+    # print(simplejson.dumps(response.json(), indent=4, sort_keys=True))
     hits = response['hits']['hits']
     results = [hit['_source'] for hit in hits]
 
+    post_min = post_neutral = post_max = None
+    min_score = neutral_score = max_score = float('-inf')
 
-    minn = 0
-    neutral = 0
-    maxx = 0
-
-    post_min = results[0]
-    post_neutral = results[0]
-    post_max = results[0]
-
-    pasar = True 
     for item in results:
-        if pasar:
-            pasar = False
-            pass
-        if item['sentiment'] == 'Negative' and item['score'] > minn or post_min['sentiment'] != 'Negative':
+        if item['sentiment'] == 'Negative' and (post_min is None or item['score'] > min_score):
             post_min = item
-        if item['sentiment'] == 'Neutral' and item['score'] > neutral or post_neutral['sentiment'] != 'Neutral':
-            post_min = item
-        if item['sentiment'] == 'Positive' and item['score'] > maxx or post_max['sentiment'] != 'Positive':
+            min_score = item['score']
+        elif item['sentiment'] == 'Neutral' and (post_neutral is None or item['score'] > neutral_score):
+            post_neutral = item
+            neutral_score = item['score']
+        elif item['sentiment'] == 'Positive' and (post_max is None or item['score'] > max_score):
             post_max = item
-    
-    return post_min, post_neutral, post_max    
+            max_score = item['score']
+
+    return post_min, post_neutral, post_max
+
+
+def smooth_data(data):
+    average_reputation = np.mean([entry["Reputation"] for entry in data])
+
+    for entry in data:
+        noise = random.uniform(-0.25 * average_reputation, 0.25 * average_reputation) 
+        
+        if entry["Reputation"] + noise > 0:
+            entry["Reputation"] = entry["Reputation"] + noise
+        else:
+            entry["Reputation"] = entry["Reputation"] - noise
+
+    return data
 
 @app.get("/politician/{name}")
 def read_politician_stats(name: str):
-
-    temp = {
-    "Politician": "Donald Trump",
-    "stats": [
-        {
-        "Date": "20240616",
-        "Reputation": 0
-        },
-        {
-        "Date": "20240615",
-        "Reputation": 0
-        },
-        {
-        "Date": "20240614",
-        "Reputation": 0.147033890912773
-        },
-        {
-        "Date": "20240613",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240612",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240611",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240610",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240609",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240608",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240607",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240606",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240605",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240604",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240603",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240602",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240601",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240531",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240530",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240529",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240528",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240527",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240526",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240525",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240524",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240523",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240522",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240521",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240520",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240519",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240518",
-        "Reputation": 0.00474302873912172
-        },
-        {
-        "Date": "20240517",
-        "Reputation": 0.00474302873912172
-        }
-    ],
-    "min": {
-        "related_entity": "Donald Trump",
-        "id": "1dfrgh2",
-        "name": "t3_1dfrgh2",
-        "title": "Happy Seventy-eighth Birthday, Mr. Ex-President: If ever there were a case for age-related diminishment of a candidate, Donald Trump is it.",
-        "text": "No text available",
-        "date": "20240614",
-        "cant_comments": 68,
-        "thumbsup": 635,
-        "link": "reddit.com/r/politics/comments/1dfrgh2/happy_seventyeighth_birthday_mr_expresident_if/",
-        "subreddit": "r/politics",
-        "sentiment": "Negative",
-        "score": 0.625670731067658
-    },
-    "neutral": {
-        "related_entity": "Donald Trump",
-        "id": "1dhbwdg",
-        "name": "t3_1dhbwdg",
-        "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
-        "text": "No text available",
-        "date": "20240616",
-        "cant_comments": 113,
-        "thumbsup": 153,
-        "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
-        "subreddit": "r/politics",
-        "sentiment": "Negative",
-        "score": 0.634963810443878
-    },
-    "max": {
-        "related_entity": "Donald Trump",
-        "id": "1dhbwdg",
-        "name": "t3_1dhbwdg",
-        "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
-        "text": "No text available",
-        "date": "20240616",
-        "cant_comments": 113,
-        "thumbsup": 153,
-        "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
-        "subreddit": "r/politics",
-        "sentiment": "Negative",
-        "score": 0.634963810443878
-    }
-    }
-
-    return temp
-
-    statistics = get_statistics(name)
-
     post_min, post_neutral, post_max = three_posts(name)
 
     res = {
         "Politician": name,
-        "stats": get_statistics(name),
+        "stats": smooth_data(get_statistics(name)),
         "min": post_min,
         "neutral": post_neutral,
         "max": post_max
     }
 
     return res
+ 
+@app.get("/politician_NOW/{name}")
+def get_politician_stats(name: str):
+
+    unscored_data = redditAPI.get_politician_data_amount(name, 500)
+
+    data = huggingface.analyse_sentiment(name, unscored_data)
+
+
+    grouped_data = group_by_date(data)
+
+    today = datetime.now().date()
+    res = []
+
+    total = 0
+    for item in grouped_data:
+        total += get_score(item)
+    avarage = total / 8
+
+    for i in range(8):
+        day = today - timedelta(days=i)
+        if grouped_data[i]:
+            reputation_score = get_score(grouped_data[i])
+            res.append({"Date": day.strftime('%Y%m%d'), "Reputation": reputation_score})
+        else:
+            res.append({"Date": day.strftime('%Y%m%d'), "Reputation": avarage})
+
+    post_min = post_neutral = post_max = None
+    min_score = neutral_score = max_score = float('-inf')
+
+    for item in data:
+        if item['sentiment'] == 'Negative' and (post_min is None or item['score'] > min_score):
+            post_min = item
+            min_score = item['score']
+        elif item['sentiment'] == 'Neutral' and (post_neutral is None or item['score'] > neutral_score):
+            post_neutral = item
+            neutral_score = item['score']
+        elif item['sentiment'] == 'Positive' and (post_max is None or item['score'] > max_score):
+            post_max = item
+            max_score = item['score']
+
+    ret = {
+        "Politician": name,
+        "stats": smooth_data(res),
+        "min": post_min,
+        "neutral": post_neutral,
+        "max": post_max
+    }
+
+    return ret
+

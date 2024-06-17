@@ -149,7 +149,10 @@ def get_politician_data(Entity, next_id):
     count = 1
     posts, next_id = buscarPublicaciones(Entity, next_id)
     print("=====================================================================================")
-    print("=================================== LA CANTIDAD DE POSTS ES =========================")
+    print("=====================================================================================")
+    print("===============================LA CANTIDAD DE POSTS ES===============================")
+    print(f"========================================{len(posts)}=========================================")
+    print("=====================================================================================")
     print(len(posts))
     for post in posts:
         all_posts.append(post)
@@ -209,3 +212,78 @@ def get_politician_data(Entity, next_id):
 
     print(f"comentarios procesados: {response_count}")
     return final_data, next_id
+
+
+def get_politician_data_amount(Entity, amount):
+    """
+    Retrieves data for a politician from Reddit API.
+
+    Args:
+        Entity (str): The name of the politician.
+        next_id (str): The ID of the next post to retrieve.
+
+    Returns:
+        tuple: A tuple containing a list of all posts and the ID of the next post.
+    """
+
+    global logged
+    logged = False
+    login()
+    logged = True
+
+    all_posts = []
+
+    posts, _ = buscarPublicaciones(Entity, None)
+    
+    print("=====================================================================================")
+    print("=====================================================================================")
+    print("===============================LA CANTIDAD DE POSTS ES===============================")
+    print(f"========================================{len(posts)}=========================================")
+    print("=====================================================================================")
+
+    for post in posts:
+        all_posts.append(post)
+
+    final_data = []
+    response_count = 0
+    posts_count = 0
+    for post in all_posts:
+        print(f"comentarios procesados: {response_count}")
+        if response_count >= amount:
+            print("SE LLEGO A {amount} POSTS")
+            return final_data
+        posts_count += 1
+        print(f'Count = {posts_count} _------------_ obteniendo comentarios')
+        data = fetch_comments(post['id'])
+
+        print('Comentarios obtenidos')
+
+        post_data = data[0]['data']['children'][0]['data']
+        post_author = post_data['author']
+        
+        if post_author != 'AutoModerator':  # Avoid posts from 'AutoModerator'
+            comments = data[1]['data']['children']
+            cant_comments = 0
+            for comment in comments:
+                if cant_comments == 75:
+                    break
+                if comment['kind'] != 't1':
+                    continue 
+                response = {
+                    'related_entity': Entity,
+                    'id': post['id'],
+                    'name': post['id'],
+                    'title': post['title'],
+                    'text': post['text'] or ' ',
+                    'date': time.strftime("%Y%m%d", time.gmtime(comment['data']['created_utc'])),
+                    'thumbsup': comment['data']['score'],
+                    "link": "reddit.com" + comment['data']['permalink'],
+                    "subreddit": extract_subreddit(comment['data']['permalink']),
+                    "comment": comment['data']["body"]
+                }
+                final_data.append(response)
+                response_count += 1
+                cant_comments += 1
+
+    print(f"comentarios procesados: {response_count}")
+    return final_data
