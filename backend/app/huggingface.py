@@ -30,11 +30,8 @@ def analyse_sentiment(entity, posts):
 
     phrases = [post['title'] + ' ' + post['text'] for post in posts]
 
-<<<<<<< HEAD
-    batch_size = 8
-=======
+
     batch_size = 4
->>>>>>> origin/Persistance
     for i in range(0, len(phrases), batch_size):
         batch_phrases = phrases[i:i + batch_size]
         evaluations = classifier(batch_phrases, text_pair=entity)
@@ -45,8 +42,4 @@ def analyse_sentiment(entity, posts):
             results.append(posts[i + j])
             print(evaluation)
 
-<<<<<<< HEAD
     return results
-=======
-    return results
->>>>>>> origin/Persistance

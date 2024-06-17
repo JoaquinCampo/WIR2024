@@ -164,7 +164,6 @@ def three_posts(Politician):
 @app.get("/politician/{name}")
 def read_politician_stats(name: str):
 
-
     temp = {
     "Politician": "Donald Trump",
     "stats": [
@@ -338,6 +337,7 @@ def read_politician_stats(name: str):
     }
 
     return temp
+
     statistics = get_statistics(name)
 
     post_min, post_neutral, post_max = three_posts(name)

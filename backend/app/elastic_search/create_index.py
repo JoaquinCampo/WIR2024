@@ -9,9 +9,16 @@ def create_index():
     else:
         print("Connection successful")
 
+    # Create the posts_index
     index_name = "posts_index"
 
-    mapping = {
+    settings = {
+        "settings": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "refresh_interval": "30s",  # Increase refresh interval for resource efficiency
+            "index.translog.durability": "async"  # Use async translog for lower resource usage
+        },
         "mappings": {
             "properties": {
                 "related_entity": {"type": "text"},
@@ -31,15 +38,21 @@ def create_index():
     }
 
     if not elasticsearch_connection.indices.exists(index=index_name):
-        elasticsearch_connection.indices.create(index=index_name, body=mapping)
-        print(f"Índice {index_name} creado correctamente.")
+        elasticsearch_connection.indices.create(index=index_name, body=settings)
+        print(f"Index {index_name} created successfully.")
     else:
-        print(f"El índice {index_name} ya existe.")
+        print(f"The index {index_name} already exists.")
 
-
+    # Create the last_retrieved_post index
     index_name = "last_retrieved_post"
 
-    mapping = {
+    settings = {
+        "settings": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "refresh_interval": "30s",
+            "index.translog.durability": "async"
+        },
         "mappings": {
             "properties": {
                 "related_entity": {"type": "text"},
@@ -49,7 +62,10 @@ def create_index():
     }
 
     if not elasticsearch_connection.indices.exists(index=index_name):
-        elasticsearch_connection.indices.create(index=index_name, body=mapping)
-        print(f"Índice {index_name} creado correctamente.")
+        elasticsearch_connection.indices.create(index=index_name, body=settings)
+        print(f"Index {index_name} created successfully.")
     else:
-        print(f"El índice {index_name} ya existe.")
+        print(f"The index {index_name} already exists.")
+
+# Run the function to create the indices
+create_index()

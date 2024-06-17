@@ -113,24 +113,17 @@ create_index.create_index()
 # for politician in politician_instances:
 #     politician.retrieve_info()
 
-<<<<<<< HEAD
-# Delete all data in the "posts_index"
-delete_all_data("posts_index")
 
-# Delete all data in the "last_retrieved_post"
-delete_all_data("last_retrieved_post")
-=======
 # # Delete all data in the "posts_index"
 # delete_all_data("posts_index")
 
 # # Delete all data in the "last_retrieved_post"
 # delete_all_data("last_retrieved_post")
->>>>>>> origin/Persistance
 
-Trump = Politician(name="Donald Trump", party="Republican")
-Trump.retrieve_info()
+# Trump = Politician(name="Donald Trump", party="Republican")
+# Trump.retrieve_info()
 
-<<<<<<< HEAD
+
 # Get the count of documents in the "posts_index"
 posts_index_count = get_document_count("posts_index")
 print(f"Number of documents in posts_index: {posts_index_count}")
@@ -152,24 +145,4 @@ print(f"Number of documents in last_retrieved_post: {last_retrieved_post_count}"
 #     print(doc['_source'])
 
 
-=======
-# Fetch and print all documents from the "posts_index"
-posts_index_documents = fetch_all_documents("posts_index")
-print("Documents in posts_index:")
-for doc in posts_index_documents:
-    print(simplejson.dumps(doc['_source'], indent=4, sort_keys=True))
 
-# # Fetch and print all documents from the "last_retrieved_post" index
-# last_retrieved_post_documents = fetch_all_documents("last_retrieved_post")
-# print("Documents in last_retrieved_post:")
-# for doc in last_retrieved_post_documents:
-#     print(doc['_source'])
-
-# Get the count of documents in the "posts_index"
-# posts_index_count = get_document_count("posts_index")
-# print(f"Number of documents in posts_index: {posts_index_count}")
-
-# # Get the count of documents in the "last_retrieved_post" index
-# last_retrieved_post_count = get_document_count("last_retrieved_post")
-# print(f"Number of documents in last_retrieved_post: {last_retrieved_post_count}")
->>>>>>> origin/Persistance
