@@ -35,7 +35,7 @@ function Stat(props) {
           },
           {
             label: 'Joe Biden',
-            data: ,
+            data: [2,2,2,2],
             borderColor: 'rgb(72, 177, 144)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
           },
