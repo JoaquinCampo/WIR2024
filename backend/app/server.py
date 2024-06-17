@@ -20,6 +20,7 @@ app.add_middleware(
 )
 
 sample = {
+    "subreddit": "r/politics",
     "cant_comments": 3,
     "date": "20240613",
     "id": "1df6tue",
@@ -29,7 +30,16 @@ sample = {
     "sentiment": "Negative",
     "text": "No text available",
     "thumbsup": 5,
-    "title": "This Top Democrat Isn\u2019t Afraid to Call Trump a Felon and a Grifter. Most of the party\u2019s leaders want to avoid too much focus on Donald Trump\u2019s felonies. JB Pritzker, the governor of Illinois, feels differently."  
+    "title": "This Top Democrat Isn\u2019t Afraid to Call Trump a Felon and a Grifter. Most of the party\u2019s leaders want to avoid too much focus on Donald Trump\u2019s felonies. JB Pritzker, the governor of Illinois, feels differently.",
+    "Donald Trump": 0.88,
+    "Kevin McCarthy": 0.75,
+    "Mitch McConnell": 0.64,
+    "Ted Cruz": 0.53,
+    "Joe Biden": 0.42,
+    "Kamala Harris": 0.31,
+    "Nancy Pelosi": 0.25,
+    "Chuck Schumer": 0.17,
+    "Alexandria Ocasio-Cortez": 0.02,
 }
 
 @app.get("/")
