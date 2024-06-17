@@ -166,179 +166,179 @@ def three_posts(Politician):
 @app.get("/politician/{name}")
 def read_politician_stats(name: str):
 
-    # temp = {
-    # "Politician": "Donald Trump",
-    # "stats": [
-    #     {
-    #     "Date": "20240616",
-    #     "Reputation": 0
-    #     },
-    #     {
-    #     "Date": "20240615",
-    #     "Reputation": 0
-    #     },
-    #     {
-    #     "Date": "20240614",
-    #     "Reputation": 0.147033890912773
-    #     },
-    #     {
-    #     "Date": "20240613",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240612",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240611",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240610",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240609",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240608",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240607",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240606",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240605",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240604",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240603",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240602",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240601",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240531",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240530",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240529",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240528",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240527",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240526",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240525",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240524",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240523",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240522",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240521",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240520",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240519",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240518",
-    #     "Reputation": 0.00474302873912172
-    #     },
-    #     {
-    #     "Date": "20240517",
-    #     "Reputation": 0.00474302873912172
-    #     }
-    # ],
-    # "min": {
-    #     "related_entity": "Donald Trump",
-    #     "id": "1dfrgh2",
-    #     "name": "t3_1dfrgh2",
-    #     "title": "Happy Seventy-eighth Birthday, Mr. Ex-President: If ever there were a case for age-related diminishment of a candidate, Donald Trump is it.",
-    #     "text": "No text available",
-    #     "date": "20240614",
-    #     "cant_comments": 68,
-    #     "thumbsup": 635,
-    #     "link": "reddit.com/r/politics/comments/1dfrgh2/happy_seventyeighth_birthday_mr_expresident_if/",
-    #     "subreddit": "r/politics",
-    #     "sentiment": "Negative",
-    #     "score": 0.625670731067658
-    # },
-    # "neutral": {
-    #     "related_entity": "Donald Trump",
-    #     "id": "1dhbwdg",
-    #     "name": "t3_1dhbwdg",
-    #     "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
-    #     "text": "No text available",
-    #     "date": "20240616",
-    #     "cant_comments": 113,
-    #     "thumbsup": 153,
-    #     "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
-    #     "subreddit": "r/politics",
-    #     "sentiment": "Negative",
-    #     "score": 0.634963810443878
-    # },
-    # "max": {
-    #     "related_entity": "Donald Trump",
-    #     "id": "1dhbwdg",
-    #     "name": "t3_1dhbwdg",
-    #     "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
-    #     "text": "No text available",
-    #     "date": "20240616",
-    #     "cant_comments": 113,
-    #     "thumbsup": 153,
-    #     "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
-    #     "subreddit": "r/politics",
-    #     "sentiment": "Negative",
-    #     "score": 0.634963810443878
-    # }
-    # }
+    temp = {
+    "Politician": "Donald Trump",
+    "stats": [
+        {
+        "Date": "20240616",
+        "Reputation": 0
+        },
+        {
+        "Date": "20240615",
+        "Reputation": 0
+        },
+        {
+        "Date": "20240614",
+        "Reputation": 0.147033890912773
+        },
+        {
+        "Date": "20240613",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240612",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240611",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240610",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240609",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240608",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240607",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240606",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240605",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240604",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240603",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240602",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240601",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240531",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240530",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240529",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240528",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240527",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240526",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240525",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240524",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240523",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240522",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240521",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240520",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240519",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240518",
+        "Reputation": 0.00474302873912172
+        },
+        {
+        "Date": "20240517",
+        "Reputation": 0.00474302873912172
+        }
+    ],
+    "min": {
+        "related_entity": "Donald Trump",
+        "id": "1dfrgh2",
+        "name": "t3_1dfrgh2",
+        "title": "Happy Seventy-eighth Birthday, Mr. Ex-President: If ever there were a case for age-related diminishment of a candidate, Donald Trump is it.",
+        "text": "No text available",
+        "date": "20240614",
+        "cant_comments": 68,
+        "thumbsup": 635,
+        "link": "reddit.com/r/politics/comments/1dfrgh2/happy_seventyeighth_birthday_mr_expresident_if/",
+        "subreddit": "r/politics",
+        "sentiment": "Negative",
+        "score": 0.625670731067658
+    },
+    "neutral": {
+        "related_entity": "Donald Trump",
+        "id": "1dhbwdg",
+        "name": "t3_1dhbwdg",
+        "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
+        "text": "No text available",
+        "date": "20240616",
+        "cant_comments": 113,
+        "thumbsup": 153,
+        "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
+        "subreddit": "r/politics",
+        "sentiment": "Negative",
+        "score": 0.634963810443878
+    },
+    "max": {
+        "related_entity": "Donald Trump",
+        "id": "1dhbwdg",
+        "name": "t3_1dhbwdg",
+        "title": "Rep. Byron Donalds Wants Supreme Court to ‘Step in’ and Overturn Trump Conviction",
+        "text": "No text available",
+        "date": "20240616",
+        "cant_comments": 113,
+        "thumbsup": 153,
+        "link": "reddit.com/r/politics/comments/1dhbwdg/rep_byron_donalds_wants_supreme_court_to_step_in/",
+        "subreddit": "r/politics",
+        "sentiment": "Negative",
+        "score": 0.634963810443878
+    }
+    }
 
-    # return temp
+    return temp
 
     statistics = get_statistics(name)
 

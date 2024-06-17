@@ -148,6 +148,9 @@ def get_politician_data(Entity, next_id):
 
     count = 1
     posts, next_id = buscarPublicaciones(Entity, next_id)
+    print("=====================================================================================")
+    print("=================================== LA CANTIDAD DE POSTS ES =========================")
+    print(len(posts))
     for post in posts:
         all_posts.append(post)
 
@@ -158,7 +161,11 @@ def get_politician_data(Entity, next_id):
         count += 1
 
     if next_id is None:
-        print("NEXT ID IS NONE")
+        print("=====================================================================================")
+        print("=====================================================================================")
+        print("===================================NEXT ID IS NONE===================================")
+        print("=====================================================================================")
+        print("=====================================================================================")
     # Esta todo comentado pq no estamos utilizando los comentarios aun, en otra version tal vez se utilicen
     final_data = []
     response_count = 0
@@ -170,7 +177,6 @@ def get_politician_data(Entity, next_id):
         posts_count += 1
         print(f'Count = {posts_count} _------------_ obteniendo comentarios')
         data = fetch_comments(post['id'])
-        cant_requests += 1
 
         print('Comentarios obtenidos')
 
@@ -181,7 +187,7 @@ def get_politician_data(Entity, next_id):
             comments = data[1]['data']['children']
             cant_comments = 0
             for comment in comments:
-                if cant_comments == 50:
+                if cant_comments == 75:
                     break
                 if comment['kind'] != 't1':
                     continue 
@@ -197,7 +203,6 @@ def get_politician_data(Entity, next_id):
                     "subreddit": extract_subreddit(comment['data']['permalink']),
                     "comment": comment['data']["body"]
                 }
-                print(time.strftime("%Y%m%d", time.gmtime(comment['data']['created_utc'])))
                 final_data.append(response)
                 response_count += 1
                 cant_comments += 1
