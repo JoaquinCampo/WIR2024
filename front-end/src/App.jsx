@@ -51,6 +51,10 @@ function App() {
   const [sliderValue, setSliderValue] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const [redditMin, setRedditMin] = useState({});
+  const [redditNeutral, setRedditNeutral] = useState({});
+  const [redditMax, setRedditMax] = useState({});
+
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   
@@ -68,11 +72,8 @@ function App() {
     setRealTimeRequest(false);
     setSearchValue(name);
 
-    setProgress(0);
-    setprogressTarget(0);
-
     setWaiting(true);
-    sendRequest(name);
+    sendRequest();
   }
 
   const handleFormInput = () => {
@@ -83,7 +84,7 @@ function App() {
 
     setWaiting(true);   
 
-    sendRequest(searchValue);
+    sendRequest();
   }
 
   // const formSubmit = (event) => {
@@ -108,7 +109,7 @@ function App() {
             return progressTarget;
           }
           if(elm !== null)
-            elm.innerHTML = Math.round(progressTarget * 100) + '%';
+            elm.innerHTML = Math.round(progress * 100) + '%';
           return nextValue;
         });
       }, 10);
@@ -125,15 +126,34 @@ function App() {
     }
   }, [progressTarget])
 
+
+  useEffect(() => {
+    let url = 'http://127.0.0.1:8000/politician/' + searchValue;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        setRedditMin(data["min"])
+        setRedditNeutral(data["neutral"])
+        setRedditMax(data["max"])
+        setprogressTarget(data["average_reputation"])
+
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }, [searchValue]);
+
+
   // useEffect(() => {
 
   // }, []);
     
-  async function sendRequest(name) {
+  async function sendRequest() {
   // Simulate long-running function
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    let url= 'http://127.0.0.1:8000/politician'
+    let url= 'http://127.0.0.1:8000/politician' + searchValue;
     fetch(url)
     .then(response => {
       if (!response.ok) {
@@ -142,8 +162,6 @@ function App() {
       return response.json();
     })
     .then(data => {
-      setData(data);
-      setprogressTarget(data[name]);
       formattedDate = data.date[6] + data.date[7] + '/' + data.date[4] + data.date[5] + '/' + data.date[0] + data.date[1] + data.date[2] + data.date[3];
       setWaiting(false);
     })
@@ -151,12 +169,6 @@ function App() {
       setError(error);
       setWaiting(false);
     });
-    // switch (name) {
-    //   case "Donald Trump": setprogressTarget(0.5); break;
-    //   case "Joe Biden": setprogressTarget(0.85); break;
-    //   case "Nancy Pelosi": setprogressTarget(0.2); break;
-    //   default: setprogressTarget(parseInt(name));
-    // }
     setOnSubmit(true);
     setWaiting(false);
   }
@@ -167,8 +179,10 @@ function App() {
     behavior: "smooth",
     });
 
+    setProgress(0)
+    setprogressTarget(0)
     setWaiting(false);
-    setOnSubmit(!onSubmit);
+    setOnSubmit(false);
     }
 
     const maxItems = 3;
@@ -239,34 +253,66 @@ function App() {
               <Stat name={searchValue}>
               </Stat>
               <Flex direction="row" width="100%" height="100%" justifyContent="space-around" align="center">
-                <StatComparison name={searchValue}/>
-                <StatComparison name={searchValue}/>
+                <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Joe Biden' : 'Donald Trump'}/>
+                <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Kamala Harris' : 'Ted Cruz'}/>
               </Flex>
             </Flex>
 
             <Flex position="relative" justify="center" height="40%"  width="100%">
               <Flex direction="column" position="absolute" top="50%" left="5%" transform="translateY(-50%)">
-                <Button bg="none" color="#f2e3d6" _hover={{bg:"#45bdce"}}>Best</Button>
+                {/* <Button bg="none" color="#f2e3d6" _hover={{bg:"#45bdce"}}>Best</Button>
                 <Button bg="none" color="#f2e3d6" _hover={{bg:"#45bdce"}}>Neutral</Button>
-                <Button bg="none" color="#f2e3d6" _hover={{bg:"#45bdce"}}>Worst</Button>
+                <Button bg="none" color="#f2e3d6" _hover={{bg:"#45bdce"}}>Worst</Button> */}
               </Flex>
-              <Grid className="reddit-posts" width="75%" templateColumns="repeat(auto-fit, minmax(32%, 1fr))" gap={4} borderRadius={20} margin="5%" color="black" transition="opacity 0.35s ease-in-out" >
-                {redditPosts.map((post, index) => (
-                  // <Flex className="reddit-post-wrapper" bg="#ff9a00" borderRadius={12}>
-                  <GridItem key={index}>
-                    <Flex direction="column" justifyContent="center">
-                    {index===0 && <Text color="red" fontWeight={750} letterSpacing="3px" align="center"> Worst </Text>}
-                    {index===1 && <Text color="white" fontWeight={750} letterSpacing="3px" align="center"> Neutral </Text>}
-                    {index===2 && <Text color="#0ae448" fontWeight={750} letterSpacing="3px" align="center"> Best </Text>}
-                      <RedditPost title={post.title} subreddit={post.subreddit} date={post.date} content={post.content} upvotes={post.upvotes} _hover={{}} />
-                    </Flex>
-                  </GridItem>
-                  // </Flex>
-                ))}  
-                  {/* <GridItem key={57}>
-                    <RedditPost name={data.name} title={data.title} subreddit={data.subreddit} date={formattedDate} content={data.text === 'No text available.' ? data.text : ''} upvotes={data.thumbsup} _hover={{}} />
-                    </GridItem> */}
-              </Grid>
+              <Grid
+  className="reddit-posts"
+  width="75%"
+  templateColumns="repeat(auto-fit, minmax(32%, 1fr))"
+  gap={4}
+  borderRadius={20}
+  margin="5%"
+  color="black"
+  transition="opacity 0.35s ease-in-out"
+>
+  <Flex className="reddit-post-wrapper" bg="#" borderRadius={12} width="100%">
+    <GridItem width="100%">
+      <Text color="red" fontWeight={750} letterSpacing="3px" align="center">Worst</Text>
+      <RedditPost
+        title={redditMin["title"]}
+        subreddit={redditMin["subreddit"]}
+        date={redditMin["date"]}
+        content={redditMin["comment"]}
+        upvotes={redditMin["thumbsup"]}
+        _hover={{}}
+      />
+    </GridItem>
+    <GridItem width="100%">
+      <Text color="white" fontWeight={750} letterSpacing="3px" align="center">Neutral</Text>
+      <RedditPost
+        title={redditNeutral["title"]}
+        subreddit={redditNeutral["subreddit"]}
+        date={redditNeutral["date"]}
+        content={redditNeutral["comment"]}
+        upvotes={redditNeutral["thumbsup"]}
+        _hover={{}}
+      />
+    </GridItem>
+    <GridItem width="100%">
+      <Text color="#0ae448" fontWeight={750} letterSpacing="3px" align="center">Best</Text>
+      <RedditPost
+        title={redditMax["title"]}
+        subreddit={redditMax["subreddit"]}
+        date={redditMax["date"]}
+        content={redditMax["comment"]}
+        upvotes={redditMax["thumbsup"]}
+        _hover={{}}
+      />
+    </GridItem>
+  </Flex>
+  {/* <GridItem key={57}>
+    <RedditPost name={data.name} title={data.title} subreddit={data.subreddit} date={formattedDate} content={data.text === 'No text available.' ? data.text : ''} upvotes={data.thumbsup} _hover={{}} />
+  </GridItem> */}
+</Grid>
             </Flex>
             </>
           )
