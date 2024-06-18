@@ -78,8 +78,7 @@ function Stat(props) {
         position: 'top',
       },
       title: {
-        display: false,
-        text: 'Chart.js Line Chart',
+        display: true,
       },
     },
     scales: {

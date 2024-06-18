@@ -54,6 +54,12 @@ function App() {
   const [redditMin, setRedditMin] = useState({});
   const [redditNeutral, setRedditNeutral] = useState({});
   const [redditMax, setRedditMax] = useState({});
+  const [redditMinDate, setRedditMinDate] = useState("");
+  const [redditNeutralDate, setRedditNeutralDate] = useState("");
+  const [redditMaxDate, setRedditMaxDate] = useState("");
+  
+  const [comment, setComment] = useState("");
+  const [responseNOW, setResponseNOW] = useState([]);
 
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
@@ -61,30 +67,86 @@ function App() {
   let candidatePost = {};
   let formattedDate;
 
+  async function sendRequest() {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // let url= 'http://127.0.0.1:8000/politician' + searchValue;
+    // fetch(url)
+    // .then(response => {
+    //   if (!response.ok) {
+    //     throw new Error('Network response was not ok');
+    //   }
+    //   return response.json();
+    // })
+    // .then(data => {
+
+    //   // let today = new Date()
+    //   // formattedDate = data.date[6] + data.date[7] + '/' + data.date[4] + data.date[5] + '/' + data.date[0] + data.date[1] + data.date[2] + data.date[3];
+    //   setWaiting(false);
+    // })
+    // .catch(error => {
+    //   setError(error);
+    //   setWaiting(false);
+    // });
+    setOnSubmit(true);
+    setWaiting(false);
+  }
 
   const handleInputChange = (event) => {
-    setRealTimeRequest(true);
     setSearchValue(event.target.value);
     setError(event.target.value.length === 0)
   };
 
-  const handlePresetInput = (name) => {
+  const handlePresetInput = async (name) => {
     setRealTimeRequest(false);
     setSearchValue(name);
-
     setWaiting(true);
+
+    // const auxComment = (await fetch(`http://127.0.0.1:8000/comment/${searchValue}`));
+    // setComment(await auxComment.json);
+
     sendRequest();
   }
 
-  const handleFormInput = () => {
+  const handleFormInput = async () => {
     setRealTimeRequest(true);
     
     setProgress(0);
     setprogressTarget(0);
 
     setWaiting(true);   
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/politician_NOW/${searchValue}`);
+      // const auxComment = await fetch(`http://127.0.0.1:8000/comment/${searchValue}`);
+      // setComment(await auxComment.text());
+      
+      const data = await response.json();
+      console.log(data)
+      const newEstadisticas = data.stats.map(stat => stat.Reputation * 100);
+      setResponseNOW(newEstadisticas);
+
+      setData(data)
+      setRedditMin(data["min"])
+      setRedditNeutral(data["neutral"])
+      setRedditMax(data["max"])
+      setprogressTarget(data["average_reputation"])
+
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
 
     sendRequest();
+  }
+
+  function reset() {      
+    window.scrollTo({
+      top: 0,
+    behavior: "smooth",
+    });
+    setProgress(0)
+    setprogressTarget(0)
+    setWaiting(false);
+    setOnSubmit(false);
   }
 
   // const formSubmit = (event) => {
@@ -98,8 +160,6 @@ function App() {
 
   useEffect(() => {
     if (progressTarget > 0) {
-      var elm = document.querySelector('#progress-indicator');
-
       const increment = progressTarget / 20;
       const interval = setInterval(() => {
         setProgress((prev) => {
@@ -108,8 +168,6 @@ function App() {
             clearInterval(interval);
             return progressTarget;
           }
-          if(elm !== null)
-            elm.innerHTML = Math.round(progress * 100) + '%';
           return nextValue;
         });
       }, 10);
@@ -124,7 +182,20 @@ function App() {
         behavior: "smooth",
       });
     }
-  }, [progressTarget])
+  }, [realTimeRequest])
+
+  // useEffect(() => {
+  //   let url = 'http://127.0.0.1:8000/politician/' + searchValue;
+
+  //   fetch(url)
+  //     .then(response => response.json())
+  //     .then(data => {
+
+  //     }).catch(error => {
+  //       setError(error);
+  //       setWaiting(false);
+  //     });
+  // }, [])
 
 
   useEffect(() => {
@@ -145,45 +216,6 @@ function App() {
   }, [searchValue]);
 
 
-  // useEffect(() => {
-
-  // }, []);
-    
-  async function sendRequest() {
-  // Simulate long-running function
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    let url= 'http://127.0.0.1:8000/politician' + searchValue;
-    fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      formattedDate = data.date[6] + data.date[7] + '/' + data.date[4] + data.date[5] + '/' + data.date[0] + data.date[1] + data.date[2] + data.date[3];
-      setWaiting(false);
-    })
-    .catch(error => {
-      setError(error);
-      setWaiting(false);
-    });
-    setOnSubmit(true);
-    setWaiting(false);
-  }
-
-  function reset() {      
-    window.scrollTo({
-      top: 0,
-    behavior: "smooth",
-    });
-
-    setProgress(0)
-    setprogressTarget(0)
-    setWaiting(false);
-    setOnSubmit(false);
-    }
 
     const maxItems = 3;
     redditPosts = redditPosts.slice(0, maxItems);
@@ -206,9 +238,9 @@ function App() {
                   <CloseIcon color="#a7222c" onClick={reset} position="relative"
                    right="-10px"  _hover={{color:"red", transform: 'scale(1.3)', transitionDuration: '100ms', WebkitTransform: 'scale(1.3)'}}/>      
                 </Flex>
-                <Text id='progress-indicator' _hover={{cursor:"default"}} position="relative" left="25%">0%</Text>
+                <Text id='progress-indicator' _hover={{cursor:"default"}} align="center" fontSize="2rem" fontWeight={600} marginTop="5%">{Math.trunc(progressTarget* 100)}%</Text>
               </Flex>
-                <Text id="progress-comment" fontSize="2em" position="absolute" bottom="0" bg="none" _hover={{cursor:"default"}}>as</Text>
+                {/* <Text id="progress-comment" fontSize="1.5em" position="absolute" bottom="0" width="70%" bg="none" fontWeight={500} align="center" _hover={{cursor:"default"}}></Text> */}
             </Flex>}
 
             {waiting &&
@@ -223,7 +255,7 @@ function App() {
                 <Divider borderColor="gray.300" ></Divider>
                 <Text className="party-name-text" margin="5%" align="center"> Republican Party </Text>
 
-                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(20%, 1fr))" gap={10} left="15%">
+                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(4, minmax(20%, 1fr))" gap={10} left="15%">
                   {candidates.filter(candidate => candidate.party === 'Republican Party').map((candidate, index) => (
                     <GridItem key={index} _hover={{ cursor: "grab" }} onClick={() => handlePresetInput(candidate.name)}>
                       <SuggestCard  candidateName={candidate.name} candidateImage={candidate.image} />
@@ -235,7 +267,7 @@ function App() {
                 <Divider borderColor="gray.300" ></Divider>
                 <Text className="party-name-text" margin="5%" align="center" _hover={{cursor:'default'}}> Democratic Party</Text>
                 
-                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(auto-fit, minmax(20%, 1fr))" gap={10} left="15%">
+                <Grid className="idea-container-content" marginTop="0%" padding="5%" templateColumns="repeat(4, minmax(20%, 1fr))" gap={10} left="15%">
                   {candidates.filter(candidate => candidate.party === 'Democratic Party').map((candidate, index) => (
                     <GridItem key={index} _hover={{ cursor: "grab" }} onClick={() => handlePresetInput(candidate.name)}>
                       <SuggestCard candidateName={candidate.name} candidateImage={candidate.image} />
@@ -250,11 +282,11 @@ function App() {
           {onSubmit && !waiting && (     // SEGUNDA PANTALLA  ** REDDIT POSTS STATS **
             <>
             <Flex direction="column" align="center" marginTop="5%" width="100%">
-              <Stat name={searchValue}>
+              <Stat name={searchValue} type={realTimeRequest} response={responseNOW}>
               </Stat>
               <Flex direction="row" width="100%" height="100%" justifyContent="space-around" align="center">
-                <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Joe Biden' : 'Donald Trump'}/>
-                <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Kamala Harris' : 'Ted Cruz'}/>
+                {!realTimeRequest && <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Joe Biden' : 'Donald Trump'}/>}
+                {!realTimeRequest && <StatComparison name={searchValue} candidateOne={searchValue === 'Donald Trump' ? 'Kamala Harris' : 'Ted Cruz'}/>}
               </Flex>
             </Flex>
 
@@ -279,8 +311,7 @@ function App() {
       <Text color="red" fontWeight={750} letterSpacing="3px" align="center">Worst</Text>
       <RedditPost
         title={redditMin["title"]}
-        subreddit={redditMin["subreddit"]}
-        date={redditMin["date"]}
+        subreddit={"r/politics"}
         content={redditMin["comment"]}
         upvotes={redditMin["thumbsup"]}
         _hover={{}}
@@ -290,8 +321,7 @@ function App() {
       <Text color="white" fontWeight={750} letterSpacing="3px" align="center">Neutral</Text>
       <RedditPost
         title={redditNeutral["title"]}
-        subreddit={redditNeutral["subreddit"]}
-        date={redditNeutral["date"]}
+        subreddit={"r/politics"}
         content={redditNeutral["comment"]}
         upvotes={redditNeutral["thumbsup"]}
         _hover={{}}
@@ -301,8 +331,7 @@ function App() {
       <Text color="#0ae448" fontWeight={750} letterSpacing="3px" align="center">Best</Text>
       <RedditPost
         title={redditMax["title"]}
-        subreddit={redditMax["subreddit"]}
-        date={redditMax["date"]}
+        subreddit={"r/politics"}
         content={redditMax["comment"]}
         upvotes={redditMax["thumbsup"]}
         _hover={{}}
@@ -322,7 +351,7 @@ function App() {
             <Flex className="header" position="relative" direction="column" alignItems="center" justifyContent="center" width="100%" marginTop="10vh" height="fit-content">
               <Flex direction="column" align="center" className={onSubmit && !waiting ? "moved" : ""} width="100%">
                 <Heading className="main-Title" _hover={{cursor:"default"}}> Real Time Analyzer</Heading>
-                <Text marginTop="5%" maxWidth="40%" textAlign="center" fontWeight="100"> Define un tiempo de búsqueda y obtén el estatus de tu candidato favorito en los últimos minutos. </Text>
+                <Text marginTop="5%" maxWidth="40%" textAlign="center" fontWeight="100"> Obtén el estatus de tu candidato favorito en los últimos minutos. </Text>
               </Flex> 
             </Flex> 
 
@@ -335,7 +364,7 @@ function App() {
                     <SearchIcon/>
                   </Button>
                 </FormControl>
-                <Slider id='slider' defaultValue={0} min={0} max={1000} colorScheme='teal' onChange={(v) => setSliderValue(v)} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)} width="50%" marginTop="3%" marginLeft="25%">
+                {/* <Slider id='slider' defaultValue={0} min={0} max={1000} colorScheme='teal' onChange={(v) => setSliderValue(v)} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)} width="50%" marginTop="3%" marginLeft="25%">
                   <SliderTrack>
                     <SliderFilledTrack />
                   </SliderTrack>
@@ -349,7 +378,7 @@ function App() {
                   >
                     <SliderThumb />
                   </ChakraTooltip>
-                </Slider>
+                </Slider> */}
               <Text align="center" fontSize="0.7rem" fontWeight="100" marginTop="5%"> Tiempo promedio análisis por cada 10 posts - 3 segundos</Text>
               </form>
             </Flex>

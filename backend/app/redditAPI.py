@@ -1,6 +1,7 @@
 import requests as rq
 import simplejson
 import time
+from datetime import datetime, timezone
 
 def login():
     global TOKEN
@@ -27,7 +28,7 @@ def extract_subreddit(url):
         return f"{parts[1]}/{parts[2]}"
     return None
 
-def buscarPublicaciones(entidad, next_post_id):
+def buscarPublicaciones(entidad, next_post_id, _time, sorting):
     """
     Fetches posts from the Reddit API based on the given entity.
 
@@ -48,10 +49,10 @@ def buscarPublicaciones(entidad, next_post_id):
     url = 'https://oauth.reddit.com/r/politics/search.json'
     params = {
         'q': entidad,
-        'sort': 'relevance',
+        'sort': sorting,
         'limit': 100,
         'restrict_sr': True,
-        't': 'week'
+        't': _time
     }
 
     if next_post_id is not None:
@@ -66,19 +67,36 @@ def buscarPublicaciones(entidad, next_post_id):
 
         posts = []
         for data in response_json['data']['children']:
-            
-            post = {
-                'related_entity': entidad,
-                'id': data['data']['id'],
-                'name': data['data']['name'],
-                'title': data['data']['title'],
-                'text': data['data']['selftext'] or 'No text available',
-                'date': time.strftime("%Y%m%d", time.gmtime(data['data']['created_utc'])),
-                'cant_comments': data['data']['num_comments'],
-                'thumbsup': data['data']['score'],
-                "link": "reddit.com" + data['data']['permalink'],
-                "subreddit": extract_subreddit(data['data']['permalink'])
-            }
+            if _time == 'day':
+                created_utc = data['data']['created_utc']
+                created_datetime = datetime.utcfromtimestamp(created_utc)
+                formatted_date = created_datetime.strftime('%Y-%m-%d %H:%M:%S')
+                
+                post = {
+                    'related_entity': entidad,
+                    'id': data['data']['id'],
+                    'name': data['data']['name'],
+                    'title': data['data']['title'],
+                    'text': data['data']['selftext'] or 'No text available',
+                    'date': formatted_date,
+                    'cant_comments': data['data']['num_comments'],
+                    'thumbsup': data['data']['score'],
+                    "link": "reddit.com" + data['data']['permalink'],
+                    "subreddit": extract_subreddit(data['data']['permalink'])
+                }
+            else:
+                post = {
+                    'related_entity': entidad,
+                    'id': data['data']['id'],
+                    'name': data['data']['name'],
+                    'title': data['data']['title'],
+                    'text': data['data']['selftext'] or 'No text available',
+                    'date': time.strftime("%Y%m%d", time.gmtime(data['data']['created_utc'])),
+                    'cant_comments': data['data']['num_comments'],
+                    'thumbsup': data['data']['score'],
+                    "link": "reddit.com" + data['data']['permalink'],
+                    "subreddit": extract_subreddit(data['data']['permalink'])
+                }
             posts.append(post)
 
         next_id = response_json['data']['after']
@@ -147,7 +165,7 @@ def get_politician_data(Entity, next_id):
     
 
     count = 1
-    posts, next_id = buscarPublicaciones(Entity, next_id)
+    posts, next_id = buscarPublicaciones(Entity, next_id, 'week', 'relevance')
     print("=====================================================================================")
     print("=====================================================================================")
     print("===============================LA CANTIDAD DE POSTS ES===============================")
@@ -158,7 +176,7 @@ def get_politician_data(Entity, next_id):
         all_posts.append(post)
 
     while next_id is not None and count < 10:
-        posts, next_id = buscarPublicaciones(Entity, next_id)
+        posts, next_id = buscarPublicaciones(Entity, next_id, 'week', 'relevance')
         for post in posts:
           all_posts.append(post)
         count += 1
@@ -169,6 +187,7 @@ def get_politician_data(Entity, next_id):
         print("===================================NEXT ID IS NONE===================================")
         print("=====================================================================================")
         print("=====================================================================================")
+
     # Esta todo comentado pq no estamos utilizando los comentarios aun, en otra version tal vez se utilicen
     final_data = []
     response_count = 0
@@ -233,12 +252,12 @@ def get_politician_data_amount(Entity, amount):
 
     all_posts = []
 
-    posts, _ = buscarPublicaciones(Entity, None)
+    posts, _ = buscarPublicaciones(Entity, None, 'day', 'new')
     
     print("=====================================================================================")
     print("=====================================================================================")
     print("===============================LA CANTIDAD DE POSTS ES===============================")
-    print(f"========================================{len(posts)}=========================================")
+    print(f"========================================{len(posts)}=======================================")
     print("=====================================================================================")
 
     for post in posts:
@@ -249,9 +268,6 @@ def get_politician_data_amount(Entity, amount):
     posts_count = 0
     for post in all_posts:
         print(f"comentarios procesados: {response_count}")
-        if response_count >= amount:
-            print("SE LLEGO A {amount} POSTS")
-            return final_data
         posts_count += 1
         print(f'Count = {posts_count} _------------_ obteniendo comentarios')
         data = fetch_comments(post['id'])
@@ -265,17 +281,28 @@ def get_politician_data_amount(Entity, amount):
             comments = data[1]['data']['children']
             cant_comments = 0
             for comment in comments:
-                if cant_comments == 75:
+                if response_count >= amount:
+                    print("SE LLEGO A {amount} POSTS")
+                    print(f"comentarios procesados: {response_count}")
+                    return final_data
+                if cant_comments == 150:
                     break
                 if comment['kind'] != 't1':
                     continue 
+                
+                created_utc = comment['data']['created_utc']
+                # Convert Unix timestamp to timezone-aware datetime object
+                created_datetime = datetime.fromtimestamp(created_utc, tz=timezone.utc)
+                # Format datetime object to string if necessary
+                formatted_date = created_datetime.strftime('%Y-%m-%d %H:%M:%S')
+                
                 response = {
                     'related_entity': Entity,
                     'id': post['id'],
                     'name': post['id'],
                     'title': post['title'],
                     'text': post['text'] or ' ',
-                    'date': time.strftime("%Y%m%d", time.gmtime(comment['data']['created_utc'])),
+                    'date': formatted_date,
                     'thumbsup': comment['data']['score'],
                     "link": "reddit.com" + comment['data']['permalink'],
                     "subreddit": extract_subreddit(comment['data']['permalink']),

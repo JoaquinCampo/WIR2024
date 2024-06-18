@@ -8,6 +8,9 @@ import numpy as np
 import random
 import redditAPI
 import huggingface
+import requests
+import regex as re
+from datetime import datetime, timedelta
 
 app = FastAPI()
 
@@ -87,6 +90,23 @@ def group_by_date(results, days=8):
 
     return grouped_array
 
+def group_by_date_NOW(results, hours=24):
+    grouped_results = {i: [] for i in range(hours)}
+
+    now = datetime.now()
+
+    for result in results:
+        result_datetime = datetime.strptime(result['date'], '%Y-%m-%d %H:%M:%S')
+        
+        time_difference = now - result_datetime
+        hour_difference = time_difference.total_seconds() // 3600
+
+        if 0 <= hour_difference < hours:
+            grouped_results[int(hour_difference)].append(result)
+
+    grouped_array = [grouped_results[i] for i in range(hours)]
+
+    return grouped_array
 
 def get_statistics(Politician):
     es = Elasticsearch([{"host": "localhost", "port": 9200, "scheme": "http"}])
@@ -163,16 +183,20 @@ def three_posts(Politician):
     return post_min, post_neutral, post_max
 
 
-def smooth_data(data):
+def smooth_data(data, seed=42, min_value=0.05):
+    rng = np.random.default_rng(seed)
     average_reputation = np.mean([entry["Reputation"] for entry in data])
 
     for entry in data:
-        noise = random.uniform(-0.25 * average_reputation, 0.25 * average_reputation) 
+        noise = rng.uniform(-0.25 * average_reputation, 0.25 * average_reputation)
         
         if entry["Reputation"] + noise > 0:
             entry["Reputation"] = entry["Reputation"] + noise
         else:
             entry["Reputation"] = entry["Reputation"] - noise
+        
+        if entry["Reputation"] < min_value:
+            entry["Reputation"] += min_value
 
     return data
 
@@ -180,12 +204,18 @@ def smooth_data(data):
 def read_politician_stats(name: str):
     post_min, post_neutral, post_max = three_posts(name)
 
+    final_data = smooth_data(get_statistics(name))
+    max_reputation_data = max(final_data, key=lambda x: x["Reputation"])
+    average_reputation = np.mean([entry["Reputation"] for entry in final_data])
+
     res = {
         "Politician": name,
-        "stats": smooth_data(get_statistics(name)),
+        "stats": final_data,
         "min": post_min,
         "neutral": post_neutral,
-        "max": post_max
+        "max": post_max,
+        "max_reputation": max_reputation_data,
+        "average_reputation": average_reputation
     }
 
     return res
@@ -197,24 +227,23 @@ def get_politician_stats(name: str):
 
     data = huggingface.analyse_sentiment(name, unscored_data)
 
+    grouped_data = group_by_date_NOW(data)
 
-    grouped_data = group_by_date(data)
-
-    today = datetime.now().date()
+    now = datetime.now()
     res = []
 
     total = 0
     for item in grouped_data:
         total += get_score(item)
-    avarage = total / 8
+    average = total / 24
 
-    for i in range(8):
-        day = today - timedelta(days=i)
+    for i in range(24):
+        hour = now - timedelta(hours=i)
         if grouped_data[i]:
             reputation_score = get_score(grouped_data[i])
-            res.append({"Date": day.strftime('%Y%m%d'), "Reputation": reputation_score})
+            res.append({"Date": hour.strftime('%Y%m%d %H:00:00'), "Reputation": reputation_score})
         else:
-            res.append({"Date": day.strftime('%Y%m%d'), "Reputation": avarage})
+            res.append({"Date": hour.strftime('%Y%m%d %H:00:00'), "Reputation": average})
 
     post_min = post_neutral = post_max = None
     min_score = neutral_score = max_score = float('-inf')
@@ -230,13 +259,79 @@ def get_politician_stats(name: str):
             post_max = item
             max_score = item['score']
 
+
+    final_data = smooth_data(res)
+    max_reputation_data = max(final_data, key=lambda x: x["Reputation"])
+    average_reputation = np.mean([entry["Reputation"] for entry in final_data])
+
     ret = {
         "Politician": name,
-        "stats": smooth_data(res),
+        "stats": final_data,
         "min": post_min,
         "neutral": post_neutral,
-        "max": post_max
+        "max": post_max,
+        "max_reputation": max_reputation_data,
+        "average_reputation": average_reputation
     }
 
     return ret
+
+def get_chatgpt_comment(statistics):
+    api_key = "sk-proj-z6rWKgWBEbggbLhwhRKZT3BlbkFJ6sLN8xRemfw8SuvMIRRo"
+    endpoint = "https://api.openai.com/v1/chat/completions"
+
+    prompt = f"Contexto: Tengo un conjunto de datos que incluye la reputación en un intervalo de tiempo de un politico de estados unidos en un formato específico. Los datos están organizados de la siguiente manera: Politician: El nombre del político (en este caso, 'Donald Trump'). stats: Una lista de objetos que contienen la fecha y la reputación de Trump en esa fecha. min: Información del evento con la reputación mínima. neutral: Información del evento con la reputación neutral. max: Información del evento con la reputación máxima. max_reputation: La fecha y reputación más alta. average_reputation: La reputación promedio. Crea una frase dando un overview de los datos. Esta frase sera leida por millones de usuarios, por lo que tiene que ser simple y capturar la escencia de los datos sin dar demasiado detalle. Tu respuesta debe incluir un breve analisis de los datos, y al final la frase entre corchetes de esta forma %--%'frase'%--%. Estos son los datos: {statistics}, ten en cuenta que los datos representan un porcentaje, es decir, 0.37 debes interpetarlo como 37% y en la frase la debes escribir como porcentaje(37%). LA RESPUESTA TIENE QUE SER EN ESPAÑOL"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    send = {
+            "model": "gpt-4o",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        }
+
+    response = requests.post(endpoint, headers=headers, json=send)
+    print(response)
+    if response.status_code == 200:
+        results = response.json()
+        return results['choices'][0]['message']['content']
+    else:
+        response.raise_for_status()
+
+@app.get("/comment/{name}")
+def getCommentPolitician(name: str):
+
+    post_min, post_neutral, post_max = three_posts(name)
+
+    final_data = smooth_data(get_statistics(name))
+    max_reputation_data = max(final_data, key=lambda x: x["Reputation"])
+    average_reputation = np.mean([entry["Reputation"] for entry in final_data])
+
+    res = {
+        "Politician": name,
+        "stats": final_data,
+        "min": post_min,
+        "neutral": post_neutral,
+        "max": post_max,
+        "max_reputation": max_reputation_data,
+        "average_reputation": average_reputation
+    }
+
+    response = get_chatgpt_comment(res)
+    match = re.search(r'%--%(.*?)%--%', response)
+
+    if match:
+        comment = match.group(1)
+    else:
+        return"No hay comentarios disponibles para este candidato"
+
+    return comment
+
 
