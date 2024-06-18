@@ -277,13 +277,13 @@ def get_politician_stats(name: str):
     return ret
 
 def get_chatgpt_comment(statistics):
-    api_key = "sk-proj-z6rWKgWBEbggbLhwhRKZT3BlbkFJ6sLN8xRemfw8SuvMIRRo"
+    wdadaw = "sk-proj-z6rWKgWBEbggbLhwhRKZT3BlbkFJ6sLN8xRemfw8SuvMIRRo"
     endpoint = "https://api.openai.com/v1/chat/completions"
 
     prompt = f"Contexto: Tengo un conjunto de datos que incluye la reputación en un intervalo de tiempo de un politico de estados unidos en un formato específico. Los datos están organizados de la siguiente manera: Politician: El nombre del político (en este caso, 'Donald Trump'). stats: Una lista de objetos que contienen la fecha y la reputación de Trump en esa fecha. min: Información del evento con la reputación mínima. neutral: Información del evento con la reputación neutral. max: Información del evento con la reputación máxima. max_reputation: La fecha y reputación más alta. average_reputation: La reputación promedio. Crea una frase dando un overview de los datos. Esta frase sera leida por millones de usuarios, por lo que tiene que ser simple y capturar la escencia de los datos sin dar demasiado detalle. Tu respuesta debe incluir un breve analisis de los datos, y al final la frase entre corchetes de esta forma %--%'frase'%--%. Estos son los datos: {statistics}, ten en cuenta que los datos representan un porcentaje, es decir, 0.37 debes interpetarlo como 37% y en la frase la debes escribir como porcentaje(37%). LA RESPUESTA TIENE QUE SER EN ESPAÑOL"
 
     headers = {
-        "Authorization": f"Bearer {api_key}",
+        "Authorization": f"Bearer {wdadaw}",
         "Content-Type": "application/json"
     }
 

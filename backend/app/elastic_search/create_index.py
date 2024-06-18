@@ -16,8 +16,7 @@ def create_index():
         "settings": {
             "number_of_shards": 1,
             "number_of_replicas": 0,
-            "refresh_interval": "30s",  # Increase refresh interval for resource efficiency
-            "index.translog.durability": "async"  # Use async translog for lower resource usage
+            "index.translog.durability": "async"
         },
         "mappings": {
             "properties": {
